@@ -54,7 +54,7 @@
       <recent name="C:\Users\georg\Documents\JORGE\POLITECNICO\Semestre_4\Persistencia _Y_Datos_Transaccionales\Trabajo_Colaborativo\transaciones\src\main\java" />
     </key>
   </component>
-  <component name="RunManager" selected="Application.MainWindowClient">
+  <component name="RunManager" selected="Application.MainWindowServer">
     <configuration name="MainWindowClient" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="cliente.MainWindowClient" />
       <module name="transaciones" />
