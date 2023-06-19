@@ -4,9 +4,21 @@ import java.sql.*;
 import java.sql.Connection;
 import java.util.*;
 
+/**
+ * Clase static StatementSQL, permite establecer conexión con base de datos y realizar transacciones sobre la base de
+ * datos, como consulta de empleados por estado Activo o Retirado, Consulta y eliminación de empleado por ID, Ingresar
+ * y actualizar un nuevo empleado en la base datos, consulta e ingreso de ciudades, países, cargos, localizaciones y
+ * departamentos
+ * @Author Jorge Luis Velasquez Venegas
+ */
 final public class StatementSQL {
+    /**
+     * connection: permite establecer conexión con base de datos y manipulación de tablas
+     */
     private static Connection connection;
-
+    /**
+     * startConnection: método para manejo de conexión con base de datos
+     */
     private static void startConnection() {
         try {
             connection = DriverManager.getConnection("jdbc:mysql://localhost/recursoshumanos?" +
@@ -16,7 +28,13 @@ final public class StatementSQL {
             System.out.println("Error de conexión con el servidor: " + e.getMessage());
         }
     }
-
+    /**
+     * findAllEmployees: método que permite realizar consulta de empleados según estado (Activo, Retirado) a la base
+     * de datos, devolviendo los campos de empleado, el nombre del cargo y nombre de departamento en consulta por union
+     * de tablas según id de elementos relacionados
+     * @param employedStatus String con estado del empleado (Activo o Retirado)
+     * @return ArrayList con listado de empleados y sus atributos
+     */
     public static ArrayList<ArrayList<String>> findAllEmployees(String employedStatus) {
         startConnection();
         try {
@@ -48,7 +66,6 @@ final public class StatementSQL {
                     data.get(row).add(value == null ? "" : value);
                 }
             }
-            commit();
             return data;
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -56,7 +73,13 @@ final public class StatementSQL {
             closeConnection();
         }
     }
-
+    /**
+     * findEmployed: método que permite consultar empleado por ID, retornando todos los atributos del empleado
+     * contenidos en la tabla de empleados, adicionalmente retorna nombre de cargo, nombre de departamento y nombre
+     * del gerente o gerencia a la que pertenece el empleado
+     * @param employedId ID de empleado a consultar
+     * @return ArrayList con los atributos del empleado consultado
+     */
     public static ArrayList<String> findEmployed(int employedId) {
         startConnection();
         try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT \n" +
@@ -97,7 +120,6 @@ final public class StatementSQL {
                     }
                 }
             }
-            commit();
             return fieldsEmployed;
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -105,7 +127,11 @@ final public class StatementSQL {
             closeConnection();
         }
     }
-
+    /**
+     * insertEmployed: método que permite realizar inserción de empleado en la base de datos, haciendo sub consultas
+     * para obtener ID de cargo, ID de gerente, ID de departamento por nombre de dichos atributos.
+     * @param fieldsEmployed ArrayList con atributos de empleado para ingresarlo en la base de datos
+     */
     public static void insertEmployed(ArrayList<String> fieldsEmployed) {
         startConnection();
         try (PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO recursoshumanos.empleados\n" +
@@ -126,14 +152,14 @@ final public class StatementSQL {
                 "VALUES \n" +
                 "(?, ?, ?, ?, ?, ?, ?, ?, ?" +
                 ", (select cargo_ID from recursoshumanos.cargos where cargo_nombre = ?)\n" +
-                ", (select e.empl_ID from recursoshumanos.empleados e where empl_cargo_ID = (select cargo_ID from recursoshumanos.cargos where cargo_nombre = ?))\n" +
+                ", (select e.empl_ID from recursoshumanos.empleados e where empl_cargo_ID " +
+                "= (select cargo_ID from recursoshumanos.cargos where cargo_nombre = ?))\n" +
                 ", (select dpto_ID from recursoshumanos.departamentos where dpto_nombre = ?)\n" +
                 ");")) {
             preparedStatement.setInt(1, Integer.parseInt(fieldsEmployed.get(0)));
             for (int index = 1; index < fieldsEmployed.size(); index++) {
                 preparedStatement.setString(index + 1, fieldsEmployed.get(index));
             }
-
             preparedStatement.executeUpdate();
             commit();
         } catch (SQLException e) {
@@ -142,7 +168,13 @@ final public class StatementSQL {
             closeConnection();
         }
     }
-
+    /**
+     * updateEmployed: método que permite actualizar todos los campos de un empleado en la base de datos, se requiere
+     * crear una tabla temporal, ya que MySQL no permite realizar sub consulta de la misma tabla en la que se realizara
+     * la actualización de una fila. Se realizan sub consultas a las tablas de cargos, departamentos y la tabla temporal
+     * de empleados para obtener ID de cargo, ID de departamento y ID de gerente o gerencia a la que pertenece el empleado
+     * @param fieldsEmployed ArrayList con atributos de empleado a ser actualizado en la base de datos
+     */
     public static void updateEmployed(ArrayList<String> fieldsEmployed) {
         startConnection();
         PreparedStatement preparedStatement;
@@ -183,7 +215,12 @@ final public class StatementSQL {
             closeConnection();
         }
     }
-
+    /**
+     * deleteEmployed: método que permite realizar eliminación lógica de un empleado en la base de datos, previa
+     * inserción de este en la tabla de historial
+     * @param idUser ID de usuario a eliminar
+     * @param retirementDate Fecha de retiro del empleado
+     */
     public static void deleteEmployed(int idUser, String retirementDate) {
         startConnection();
         PreparedStatement preparedStatement;
@@ -215,10 +252,14 @@ final public class StatementSQL {
             closeConnection();
         }
     }
-
+    /**
+     * insertCountry: método para insertar un país en la tabla países de la base de datos
+     * @param fieldsCountry atributos del pais a insertar
+     */
     public static void insertCountry(ArrayList<String> fieldsCountry) {
         startConnection();
-        try (PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO paises (pais_ID, pais_nombre) VALUES (?, ?)")) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(
+                "INSERT INTO paises (pais_ID, pais_nombre) VALUES (?, ?)")) {
             for (int index = 0; index < fieldsCountry.size(); index++) {
                 preparedStatement.setString(index + 1, fieldsCountry.get(index));
             }
@@ -230,7 +271,10 @@ final public class StatementSQL {
             closeConnection();
         }
     }
-
+    /**
+     * insertCity: método para insertar una ciudad en la tabla ciudades de la base de datos
+     * @param fieldsCity atributos de la ciudad a insertar
+     */
     public static void insertCity(ArrayList<String> fieldsCity) {
         startConnection();
         try (PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO \n" +
@@ -252,7 +296,12 @@ final public class StatementSQL {
             closeConnection();
         }
     }
-
+    /**
+     * insertLocalization: método para insertar una localización en la tabla localizaciones de la base de datos, se
+     * realiza sub consulta en tablas ciudades y departamentos para obtener el ID de la ciudad y el ID del departamento
+     * según nombre de la ciudad y el departamento
+     * @param fieldsLocalization atributos de la localización a insertar
+     */
     public static void insertLocalization(ArrayList<String> fieldsLocalization) {
         startConnection();
         try (PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO \n" +
@@ -275,7 +324,10 @@ final public class StatementSQL {
             closeConnection();
         }
     }
-
+    /**
+     * insertPosition: método para insertar un cargo en la tabla cargos de la base de datos
+     * @param fieldsPosition atributos del cargo a insertar
+     */
     public static void insertPosition(ArrayList<String> fieldsPosition) {
         startConnection();
         try (PreparedStatement preparedStatement = connection.
@@ -296,7 +348,10 @@ final public class StatementSQL {
             closeConnection();
         }
     }
-
+    /**
+     * insertDepartment: método para insertar un departamento en la tabla departamentos de la base de datos
+     * @param fieldsDepartment atributos del departamento a insertar
+     */
     public static void insertDepartment(ArrayList<String> fieldsDepartment) {
         startConnection();
         try (PreparedStatement preparedStatement = connection.
@@ -317,6 +372,11 @@ final public class StatementSQL {
         }
     }
 
+    /**
+     * selectPositions: método que permite consultar todos los cargos en la tabla cargos de la base de datos
+     * @return objeto de la clase Message con el tipo de transacción efectuada y el listado de nombres de cargos
+     * encontrados
+     */
     public static Message selectPositions() {
         Message message = new Message(TransactionType.SELECT_POSITIONS);
         startConnection();
@@ -336,12 +396,16 @@ final public class StatementSQL {
             closeConnection();
         }
     }
-
+    /**
+     * selectDepartments: método que permite consultar todos los departamentos en la tabla departamentos de la base de datos
+     * @return objeto de la clase Message con el tipo de transacción efectuada y el listado de nombres de departamentos
+     * encontrados
+     */
     public static Message selectDepartments() {
         Message message = new Message(TransactionType.SELECT_DEPARTMENTS);
         startConnection();
         try (PreparedStatement preparedStatement = connection.
-                prepareStatement("SELECT dpto_nombre FROM departamentos")) {
+                prepareStatement("SELECT dpto_nombre FROM departamentos"))     {
             ResultSet resultSet = preparedStatement.executeQuery();
             ArrayList<String> departments = new ArrayList<>();
             while (resultSet.next()) {
@@ -356,7 +420,11 @@ final public class StatementSQL {
             closeConnection();
         }
     }
-
+    /**
+     * selectCities: método que permite consultar todas las ciudades en la tabla ciudades de la base de datos
+     * @return objeto de la clase Message con el tipo de transacción efectuada y el listado de nombres de ciudades
+     * encontrados
+     */
     public static Message selectCities() {
         Message message = new Message(TransactionType.SELECT_CITIES);
         startConnection();
@@ -376,12 +444,16 @@ final public class StatementSQL {
             closeConnection();
         }
     }
-
+    /**
+     * selectCountries: método que permite consultar todos los países en la tabla países de la base de datos
+     * @return objeto de la clase Message con el tipo de transacción efectuada y el listado de nombres de países
+     * encontrados
+     */
     public static Message selectCountries() {
         Message message = new Message(TransactionType.SELECT_COUNTRIES);
         startConnection();
         try (PreparedStatement preparedStatement = connection.
-                prepareStatement("SELECT pais_nombre FROM paises;")) {
+                prepareStatement("SELECT pais_nombre FROM paises;"))          {
             ResultSet resultSet = preparedStatement.executeQuery();
             ArrayList<String> countries = new ArrayList<>();
             while (resultSet.next()) {
@@ -396,7 +468,11 @@ final public class StatementSQL {
             closeConnection();
         }
     }
-
+    /**
+     * selectLocalizations: método que permite consultar todas las localizaciones en la tabla localizaciones de la base de datos
+     * @return objeto de la clase Message con el tipo de transacción efectuada y el listado de nombres de las localizaciones
+     * encontrados
+     */
     public static Message selectLocalizations() {
         Message message = new Message(TransactionType.SELECT_LOCALIZATIONS);
         startConnection();
@@ -416,12 +492,17 @@ final public class StatementSQL {
             closeConnection();
         }
     }
-
+    /**
+     * selectManagers: método que permite consultar todos los gerentes en la tabla cargos de la base de datos
+     * @return objeto de la clase Message con el tipo de transacción efectuada y el listado de nombres de las gerentes
+     * encontrados
+     */
     public static Message selectManagers() {
         Message message = new Message(TransactionType.SELECT_MANAGERS);
         startConnection();
         try (PreparedStatement preparedStatement = connection.
-                prepareStatement("SELECT cargo_nombre FROM recursoshumanos.cargos WHERE cargo_nombre LIKE '%Gerente%';")) {
+                prepareStatement("SELECT cargo_nombre FROM recursoshumanos.cargos WHERE cargo_nombre" +
+                        "LIKE '%Gerente%';")) {
             ResultSet resultSet = preparedStatement.executeQuery();
             ArrayList<String> managers = new ArrayList<>();
             while (resultSet.next()) {
@@ -436,7 +517,9 @@ final public class StatementSQL {
             closeConnection();
         }
     }
-
+    /**
+     * closeConnection: método que permite manejar el cierre de conexión con la base de datos
+     */
     private static void closeConnection() {
         try {
             connection.close();
@@ -444,7 +527,10 @@ final public class StatementSQL {
             System.out.println("Error cerrando conexión con servidor: " + e.getMessage());
         }
     }
-
+    /**
+     * commit: método que permite manejar la confirmación de una transacción exitosa en la base de datos
+     * @throws SQLException Excepción por error en manejo de confirmación de transacción
+     */
     private static void commit() throws SQLException {
         try {
             connection.commit();
@@ -452,5 +538,4 @@ final public class StatementSQL {
             connection.rollback();
         }
     }
-
 }
