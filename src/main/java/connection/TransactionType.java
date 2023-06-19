@@ -2,6 +2,10 @@ package connection;
 
 import java.util.Arrays;
 
+/**
+ * Enumeración que permite manejar tipos de transacciones establecidas como contantes en todas las clases
+ * @Author Jorge Luis Velasquez Venegas
+ */
 public enum TransactionType {
     RESPONSE(0){
         @Override
@@ -9,7 +13,6 @@ public enum TransactionType {
             return "RESPONSE";
         }
     },
-
     INSERT_EMPLOYED(1){
         @Override
         public String getType() {
@@ -48,7 +51,7 @@ public enum TransactionType {
         @Override
         public String getType(){ return "INSERT_CITY";}
     },
-    INSERT_LOCALIZATION(8){
+    INSERT_LOCALIZATION(8)                                                      {
         @Override
         public String getType(){ return "INSERT_LOCALIZATION";}
     },
@@ -60,48 +63,49 @@ public enum TransactionType {
         @Override
         public String getType(){ return "INSERT_POSITION";}
     },
-
     SELECT_POSITIONS(11){
         @Override
         public String getType(){ return "SELECT_POSITIONS";}
     },
-
     SELECT_DEPARTMENTS(12){
         @Override
         public String getType(){ return "SELECT_DEPARTMENTS";}
     },
-
     SELECT_CITIES(13){
         @Override
         public String getType(){ return "SELECT_CITIES";}
     },
-
     SELECT_COUNTRIES(14){
         @Override
         public String getType(){ return "SELECT_COUNTRIES";}
     },
-
     SELECT_LOCALIZATIONS(15){
         @Override
         public String getType(){ return "SELECT_LOCALIZATIONS";}
     },
-
     SELECT_MANAGERS(16){
         @Override
         public String getType(){ return "SELECT_MANAGERS";}
     },
-
     SELECT_ALL_EMPLOYED_RETIREMENT(17){
         @Override
         public String getType(){ return "SELECT_MANAGERS";}
     };
-
+    /**
+     * type: tipo de transacción que se puede efectuar
+     */
     private int type;
-
+    /**
+     * TransactionType: constructor privado de enumeración
+     * @param type
+     */
     private TransactionType(Integer type) {
         this.type = type;
     }
-
+    /**
+     * getType: permite obtener el tipo de transacción a efectuar
+     * @return
+     */
     public abstract String getType();
 
     public void setType(int type) {
@@ -109,7 +113,7 @@ public enum TransactionType {
     }
 
     static public TransactionType getType(int type){
-        return (TransactionType) Arrays.stream(TransactionType.values()).filter(transaction -> transaction.type == type).findFirst().get();
+        return (TransactionType) Arrays.stream(TransactionType.values())
+                .filter(transaction -> transaction.type == type).findFirst().get();
     }
-
 }

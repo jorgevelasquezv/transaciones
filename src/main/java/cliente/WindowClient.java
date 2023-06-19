@@ -13,111 +13,231 @@ import java.util.Arrays;
 /**
  * Clase que permite crear la ventana gráfica empleando Javax Swing, Extiende de JFrame para ser usado como contenedor
  * principal y heredar todos los métodos para implementación de interfaz gráfica.
- * En esta clase se genera una primera ventana de tipo dialog para establecer la configuración de conexión con el
- * servidor socket estableciendo el Host o Ip y el número puerto de conexión del servidor. Cuando se es aceptada la
- * configuración, se genera una segunda ventana de tipo JFrame en la cual se visualizan los clientes conectados y los
- * mensajes enviados y recibidos, además de encontrar la opción de enviar mensajes seleccionando alguno de los clientes
- * conectados. El uso de eventos permite la actualización en segundo plano de la lista de clientes a medida que se
- * conectan o desconectan. La lista es visualizada en un JComboBox. El uso de eventos generados en la clase Client
- * permiten la actualización en segundo plano del TextArea en el que se visualizan los mensajes enviados y recibidos
+ * En esta clase se genera una ventana de tipo JFrame en la cual se visualizan los tipos de transacciones a efectuar
+ * en la base de datos y el retorno de cada consulta si esta lo regresa. El uso de eventos generados en la clase Client
+ * permiten la actualización en segundo plano del TestArea denominado console, en el cual se visualiza cuando es
+ * enviado una transacción y cuando es recibida una respuesta de la transacción. Dichos eventos también permiten la
+ * actualización en segundo plano de los componentes JComboBox que alojan el listado de localizaciones, países,
+ * gerentes, ciudades y cargos
  *
  * @Author Jorge Luis Velasquez
  */
 public class WindowClient extends JFrame {
     /**
-     * PanelMain: Panel principal de tipo JPanel en el cual se encuentran contenidos los demás elementos de la venta
+     * panelMain: Panel principal de tipo JPanel en el cual se encuentran contenidos los demás elementos de la venta
      */
     private JPanel panelMain;
-
     /**
-     * Destinies: lista de destinatarios conectados al servidor. Se visualiza en un JComboBox (lista desplegable), la
-     * cual se actualiza en segundo plano gracias a los eventos creados para los atributos de la clase Client
+     * listTransactionsPanelTransaction: lista de transacciones que se pueden solicitar al servidor. Se visualiza en un
+     * JComboBox (lista desplegable)
      */
     private JComboBox listTransactionsPanelTransaction;
-
     /**
-     * Console: Área multi línea de tipo JTextArea que permite visualizar los mensajes recibidos y enviados. Se
+     * console: Área multi línea de tipo JTextArea que permite visualizar cuando se envía y recibe una transacción. Se
      * actualiza en segundo plano gracias a los eventos creados para los atributos de la clase Client
      */
     private JTextArea console;
-
     /**
-     * Message: entrada de texto de tipo JTextField, permite el ingreso del mensaje que se desea enviar a otro
-     * cliente conectado al servidor
+     * firstNameEmployedPanelEmployed: entrada de texto de tipo JTextField, permite el ingreso o visualización del
+     * primer nombre de un empleado, ubicado en el JPanel de empleado
      */
     private JTextField firstNameEmployedPanelEmployed;
-
-    private JFormattedTextField idEmployedPanelEmployed;
-
     /**
-     * SendMessage: Botón del tipo JButton. Permite ejecutar el método de envío de mensajes de la clase Client
+     * idEmployedPanelEmployed: entrada de texto de tipo JTextField, permite el ingreso o visualización del ID del empleado, ubicado en el JPanel de empleado
+     */
+    private JFormattedTextField idEmployedPanelEmployed;
+    /**
+     * SendMessage: Botón del tipo JButton. Permite ejecutar el método de envío de una solicitud de transacción a al socket server
      * empleando el evento del click del mouse sobre el botón
      */
     private JButton sendTransaction;
+    /**
+     * nameCountryPanelCountry: entrada de texto de tipo JTextField, permite el ingreso o visualización del nombre de un país, ubicado en el JPanel de país
+     */
     private JTextField nameCountryPanelCountry;
+    /**
+     * nameCityPanelCity: entrada de texto de tipo JTextField, permite el ingreso o visualización del nombre de una ciudad, ubicado en el JPanel de ciudad
+     */
     private JTextField nameCityPanelCity;
+    /**
+     * listCountriesPanelCity: lista de países que se pueden solicitar al servidor. Se visualiza en un
+     * JComboBox (lista desplegable) ubicado en el panel de ciudad
+     */
     private JComboBox listCountriesPanelCity;
+    /**
+     * addressPanelLocalization: entrada de texto de tipo JTextField, permite el ingreso o visualización de una dirección, ubicado en el JPanel de localización
+     */
     private JTextField addressPanelLocalization;
+    /**
+     * listCityPanelLocalization: lista de ciudades que se pueden solicitar al servidor. Se visualiza en un
+     * JComboBox (lista desplegable) ubicado en el panel de localización
+     */
     private JComboBox listCityPanelLocalization;
+    /**
+     * nameDepartmentPanelDepartment: entrada de texto de tipo JTextField, permite el ingreso o visualización del nombre de un departamento, ubicado en el JPanel de departamento
+     */
     private JTextField nameDepartmentPanelDepartment;
+    /**
+     * listLocalizationPanelDepartment: lista de ciudades que se pueden solicitar al servidor. Se visualiza en un
+     * JComboBox (lista desplegable) ubicado en el panel de departamentos
+     */
     private JComboBox listLocalizationPanelDepartment;
+    /**
+     * namePositionPanelPosition: entrada de texto de tipo JTextField, permite el ingreso o visualización del nombre de un cargo, ubicado en el JPanel de cargos
+     */
     private JTextField namePositionPanelPosition;
-    private JFormattedTextField minimumSalaryPanelPosition;
+    /**
+     * minimumSalaryPanelPosition: entrada de texto de tipo JTextField, permite el ingreso o visualización del salario mínimo de un cargo, ubicado en el JPanel de cargo
+     */
+    private JFormattedTextField minimumSalaryPanelPosition                          ;
+    /**
+     * maximumSalaryPanelPosition: entrada de texto de tipo JTextField, permite el ingreso o visualización del salario máximo de un cargo, ubicado en el JPanel de cargos
+     */
     private JFormattedTextField maximumSalaryPanelPosition;
+    /**
+     * panelCountry: Panel con atributos para cargar un país a la base de datos
+     */
     private JPanel panelCountry;
+    /**
+     * panelCity: Panel con atributos para cargar una ciudad a la base de datos
+     */
     private JPanel panelCity;
+    /**
+     * panelLocalization: Panel con atributos para cargar una localización a la base de datos
+     */
     private JPanel panelLocalization;
+    /**
+     * panelDepartment: Panel con atributos para cargar un departamento a la base de datos
+     */
     private JPanel panelDepartment;
+    /**
+     * panelPosition: Panel con atributos para cargar un cargo a la base de datos
+     */
     private JPanel panelPosition;
+    /**
+     * panelCountry: Panel con atributos para ver un empleado consultado, también actualizar, ingresar y eliminar un empleado en la base de datos
+     */
     private JPanel panelEmployed;
+    /**
+     * panelCountry: Panel con atributos para selección de transacción a efectuar
+     */
     private JPanel panelTransactions;
+    /**
+     * surnameEmployedPanelEmployed: entrada de texto de tipo JTextField, permite el ingreso o visualización del primer apellido de un empleado, ubicado en el JPanel de empleado
+     */
     private JTextField surnameEmployedPanelEmployed;
+    /**
+     * emailEmployedPanelEmployed: entrada de texto de tipo JTextField, permite el ingreso o visualización del email de un empleado, ubicado en el JPanel de empleado
+     */
     private JTextField emailEmployedPanelEmployed;
+    /**
+     * birthdateEmployedPanelEmployed: entrada de texto de tipo JTextField, permite el ingreso o visualización de la fecha de nacimiento de un empleado, ubicado en el JPanel de empleado
+     */
     private JTextField birthdateEmployedPanelEmployed;
+    /**
+     * salaryEmployedPanelEmployed: entrada de texto de tipo JTextField, permite el ingreso o visualización del salario de un empleado, ubicado en el JPanel de empleado
+     */
     private JTextField salaryEmployedPanelEmployed;
+    /**
+     * commissionEmployedPanelEmployed: entrada de texto de tipo JTextField, permite el ingreso o visualización de la comisión de un empleado, ubicado en el JPanel de empleado
+     */
     private JTextField commissionEmployedPanelEmployed;
+    /**
+     * listPositionsPanelEmployed: lista desplegable de tipo JComboBox que permite visualizar y/o seleccionar cargo del listado de cargos consultado en la base de datos
+     */
     private JComboBox listPositionsPanelEmployed;
+    /**
+     * employedDepartmentPanelEmployed: lista desplegable de tipo JComboBox que permite visualizar y/o seleccionar departamento del listado de departamentos consultado en la base de datos
+     */
     private JComboBox employedDepartmentPanelEmployed;
+    /**
+     * tableEmployees: tabla para visualizar empleados consultados en la base de datos según estado Activo o Retirado
+     */
     private JTable tableEmployees;
+    /**
+     * scrollPanelTableEmployees: panel con barras desplazables para visualizar elementos de la tabla en caso de ser mayor al tamaño de ventana
+     */
     private JScrollPane scrollPanelTableEmployees;
+    /**
+     * panelTableEmployees: Panel con atributos para ver tabla con lista de empleados consultados en la base de datos según estado Activo o Retirado en la base de datos
+     */
     private JPanel panelTableEmployees;
+    /**
+     * secondNameEmployedPanelEmployed: entrada de texto de tipo JTextField, permite el ingreso o visualización del segundo nombre de un empleado, ubicado en el JPanel de empleado
+     */
     private JTextField secondNameEmployedPanelEmployed;
+    /**
+     * secondSurnameEmployedPanelEmployed: entrada de texto de tipo JTextField, permite el ingreso o visualización del segundo apellido de un empleado, ubicado en el JPanel de empleado
+     */
     private JTextField secondSurnameEmployedPanelEmployed;
-    private JComboBox managerEmployedPanelEmployed;
-    private JFormattedTextField newIdEmployedPanelEmployed;
+    /**
+     * managerEmployedPanelEmployed: lista desplegable de tipo JComboBox que permite visualizar y/o seleccionar gerente del listado de gerentes consultado en tabla de empleados de base de datos
+     */
+    private JComboBox managerEmployedPanelEmployed                                  ;
+    /**
+     * newIdEmployedPanelEmployed: entrada de texto de tipo JTextField, permite el ingreso de un nuevo ID de empleado, ubicado en el JPanel de empleado
+     */
+    private JFormattedTextField newIdEmployedPanelEmployed                             ;
+    /**
+     * idCountryPanelCountry: entrada de texto de tipo JTextField, permite el ingreso de ID de un país, ubicado en el JPanel de país
+     */
     private JFormattedTextField idCountryPanelCountry;
+    /**
+     * idCityPanelCity: entrada de texto de tipo JTextField, permite el ingreso de un ID de ciudad, ubicado en el JPanel de ciudad
+     */
     private JFormattedTextField idCityPanelCity;
+    /**
+     * idLocalizationPanelLocalization: entrada de texto de tipo JTextField, permite el ingreso de un ID de localización, ubicado en el JPanel de localización
+     */
     private JFormattedTextField idLocalizationPanelLocalization;
+    /**
+     * idDepartmentPanelDepartment: entrada de texto de tipo JTextField, permite el ingreso de un ID de departamento, ubicado en el JPanel de departamento
+     */
     private JFormattedTextField idDepartmentPanelDepartment;
+    /**
+     * idPositionPanelPosition: entrada de texto de tipo JTextField, permite el ingreso de un ID de cargo, ubicado en el JPanel de cargo
+     */
     private JFormattedTextField idPositionPanelPosition;
+    /**
+     * listDepartmentsPanelLocalization: lista desplegable de tipo JComboBox que permite visualizar y/o seleccionar localización del listado de localizaciones consultado en la base de datos
+     */
     private JComboBox listDepartmentsPanelLocalization;
+    /**
+     * retirementDateEmployedPanelEmployed: entrada de texto de tipo JTextField, permite el ingreso o visualización de la fecha de retiro de un empleado, ubicado en el JPanel de empleado
+     */
     private JTextField retirementDateEmployedPanelEmployed;
-
+    /**
+     * panels: ArrayList con lista de paneles creados en la ventana principal para manipular sui visibilidad según
+     * transacción a efectuar, la cual es manejada a través del evento del selectItem en la lista desplegable de transacciones
+     */
     private ArrayList<JPanel> panels;
-
+    /**
+     * listFieldsEmployeesActive: ArrayList con lista de empleados activos consultados en base de datos
+     */
     private ArrayList<ArrayList<String>> listFieldsEmployeesActive;
-
+    /**
+     * listFieldsEmployeesRetirement: ArrayList con lista de empleados retirados consultados en base de datos
+     */
     private ArrayList<ArrayList<String>> listFieldsEmployeesRetirement;
-
-
     /**
      * IP_ADDRESS: dirección ip del servidor que se establece por defecto cuando se crea una instancia de la clase
      * cliente sin asignar el valor
      */
     private final String IP_ADDRESS = "127.0.0.1";
-
     /**
      * PORT: puerto por defecto para conexión con el servidor
      */
     private final int PORT = 2022;
-
     /**
      * Client: instancia del tipo Client la cual permite crear un cliente para comunicación con sockets
      */
     private Client client;
-
+    /**
+     * message: objeto de la clase Message, el cual es manipulado para indicar que tipo de transacción efectuara el
+     * socket server en la base datos y la información requerida para completar dicha transacción. Este objeto es
+     * el que se envía en cada mensaje al socket server
+     */
     private Message message;
-
     /**
      * Constructor de la clase WindowClient. Crea los objetos para visualización gráfica de ventana de configuración,
      * objeto de la clase Client para establecer la conexión con el servidor, ventana principal de interacción de
@@ -143,45 +263,67 @@ public class WindowClient extends JFrame {
         eventLoadEmployed();
         eventClose();
         eventItemTransactionSelected();
-        panels = new ArrayList<>(Arrays.asList(panelEmployed, panelTableEmployees, panelCountry, panelCity, panelLocalization, panelDepartment, panelPosition));
+        panels = new ArrayList<>(Arrays.asList(panelEmployed, panelTableEmployees, panelCountry,
+                panelCity, panelLocalization, panelDepartment, panelPosition));
         panelsNotVisible();
         panelEmployed.setVisible(true);
         listFieldsEmployeesActive = new ArrayList<>();
         listFieldsEmployeesRetirement = new ArrayList<>();
+        message.setType(TransactionType.INSERT_EMPLOYED);
     }
 
+    /**
+     * loadingPositions: Método que permite solicitar al socket server una consulta de todos los cargos que se
+     * encuentran en la base datos en la tabla de cargos
+     */
     private void loadingPositions() {
         Message message = new Message(TransactionType.SELECT_POSITIONS);
         client.sendStatement(message);
     }
-
+    /**
+     * loadingDepartments: Método que permite solicitar al socket server una consulta de todos los departamentos que se
+     * encuentran en la base datos en la tabla de departamentos
+     */
     private void loadingDepartments() {
         Message message = new Message(TransactionType.SELECT_DEPARTMENTS);
         client.sendStatement(message);
     }
-
+    /**
+     * loadingCities: Método que permite solicitar al socket server una consulta de todos las ciudades que se
+     * encuentran en la base de datos en la tabla de ciudades
+     */
     private void loadingCities() {
         Message message = new Message(TransactionType.SELECT_CITIES);
         client.sendStatement(message);
     }
-
+    /**
+     * loadingCountries: Método que permite solicitar al socket server una consulta de todos los países que se
+     * encuentran en la base de datos en la tabla de países
+     */
     private void loadingCountries() {
         Message message = new Message(TransactionType.SELECT_COUNTRIES);
         client.sendStatement(message);
     }
-
+    /**
+     * loadingLocalizations: Método que permite solicitar al socket server una consulta de todos las localizaciones que se
+     * encuentran en la base de datos en la tabla de localizaciones
+     */
     private void loadingLocalizations() {
         Message message = new Message(TransactionType.SELECT_LOCALIZATIONS);
         client.sendStatement(message);
     }
-
+    /**
+     * loadingManagers: Método que permite solicitar al socket server una consulta de todos los gerentes que se
+     * encuentran en la base de datos en la tabla de empleados
+     */
     private void loadingManagers() {
         Message message = new Message(TransactionType.SELECT_MANAGERS);
         client.sendStatement(message);
     }
-
     /**
-     * Método que permite crear la ventana de configuración para la conexión
+     * Método que permite crear instancia de la clase Client y establecer la conexión con el socketSever,
+     * además de realizar solicitud al socket server de consultas sobre la base de datos para obtener listado de
+     * cargos, departamentos y gerentes
      */
     private void setUp() {
         try {
@@ -194,11 +336,9 @@ public class WindowClient extends JFrame {
             System.exit(0);
         }
     }
-
     /**
-     * Método para manejar el evento del click del mouse sobre el botón de enviar mensaje
+     * Método para manejar el evento del click del mouse sobre el botón de enviar transacciones al socket server
      */
-
     private void eventSendStatement() {
         sendTransaction.addActionListener(new ActionListener() {
             @Override
@@ -215,7 +355,11 @@ public class WindowClient extends JFrame {
             }
         });
     }
-
+    /**
+     * Método para manipular el objeto message según el tipo de transacción que se le solicitara al socket server,
+     * agregando los atributos necesarios para completar la transacción
+     * @param fieldsEmployed
+     */
     private void selectStatementToSend(ArrayList<String> fieldsEmployed) {
         switch (message.getType()) {
             case INSERT_EMPLOYED:
@@ -290,8 +434,12 @@ public class WindowClient extends JFrame {
                 break;
         }
     }
-
-
+    /**
+     * Método para cargar ArrayList de campos de empleado según la transacción a efectuar sobre la tabla de empleados
+     * @param fieldsEmployed ArrayList de campos de empleado
+     * @param comboBoxAlterno Lista desplegable que contiene el valor seleccionado según el tipo de transacción a
+     *                        efectuar Insert o Update
+     */
     private void loadListFieldsEmployed(ArrayList<String> fieldsEmployed, JComboBox comboBoxAlterno) {
         fieldsEmployed.add(String.valueOf(idEmployedPanelEmployed.getValue()));
         fieldsEmployed.add(firstNameEmployedPanelEmployed.getText());
@@ -305,7 +453,6 @@ public class WindowClient extends JFrame {
         fieldsEmployed.add((String) listPositionsPanelEmployed.getSelectedItem());
         fieldsEmployed.add((String) comboBoxAlterno.getSelectedItem());
     }
-
     /**
      * Método para manejar el evento que se genera en el objeto de clase Client cuando se recibe un mensaje y asi
      * actualizar el área multi línea donde se visualizan los mensajes enviados y recibidos en segundo plano
@@ -319,7 +466,10 @@ public class WindowClient extends JFrame {
         };
         client.addEventListener(clientPrintMessage);
     }
-
+    /**
+     * Método para manejar el evento que se genera en el objeto de clase Client cuando se carga un valor en el atributo positions y asi
+     * actualizar la lista desplegable JComboBox donde se visualizan los cargos en segundo plano
+     */
     public void eventLoadPositions() {
         EventChangeClientListener loadPositions = new EventChangeClientListener() {
             @Override
@@ -330,7 +480,10 @@ public class WindowClient extends JFrame {
         };
         client.addEventListener(loadPositions);
     }
-
+    /**
+     * Método para manejar el evento que se genera en el objeto de clase Client cuando se carga un valor en el atributo departments y asi
+     * actualizar la lista desplegable JComboBox donde se visualizan los departamentos en segundo plano
+     */
     public void eventLoadDepartments() {
         EventChangeClientListener loadDepartments = new EventChangeClientListener() {
             @Override
@@ -345,7 +498,10 @@ public class WindowClient extends JFrame {
         };
         client.addEventListener(loadDepartments);
     }
-
+    /**
+     * Método para manejar el evento que se genera en el objeto de clase Client cuando se carga un valor en el atributo cities y asi
+     * actualizar la lista desplegable JComboBox donde se visualizan las ciudades en segundo plano
+     */
     public void eventLoadCities() {
         EventChangeClientListener loadCities = new EventChangeClientListener() {
             @Override
@@ -356,7 +512,10 @@ public class WindowClient extends JFrame {
         };
         client.addEventListener(loadCities);
     }
-
+    /**
+     * Método para manejar el evento que se genera en el objeto de clase Client cuando se carga un valor en el atributo countries y asi
+     * actualizar la lista desplegable JComboBox donde se visualizan los países en segundo plano
+     */
     public void eventLoadCountries() {
         EventChangeClientListener loadCountries = new EventChangeClientListener() {
             @Override
@@ -367,7 +526,10 @@ public class WindowClient extends JFrame {
         };
         client.addEventListener(loadCountries);
     }
-
+    /**
+     * Método para manejar el evento que se genera en el objeto de clase Client cuando se carga un valor en el atributo localizations y asi
+     * actualizar la lista desplegable JComboBox donde se visualizan las localizaciones en segundo plano
+     */
     public void eventLoadLocalizations() {
         EventChangeClientListener loadLocalizations = new EventChangeClientListener() {
             @Override
@@ -378,23 +540,32 @@ public class WindowClient extends JFrame {
         };
         client.addEventListener(loadLocalizations);
     }
-
+    /**
+     * Método para manejar el evento que se genera en el objeto de clase Client cuando se carga un valor en el atributo employees y asi
+     * actualizar la tabla JTable donde se visualizan los empleados en segundo plano según el tipo de consulta Activo o retirado
+     */
     public void eventLoadEmployees() {
         EventChangeClientListener loadEmployees = new EventChangeClientListener() {
             @Override
             void onEmployees(EventChangeClient event) {
-                if (client.getEmployedStatus().equals("Activo")) {
-                    listFieldsEmployeesActive = client.getEmployees();
-                    createTable(listFieldsEmployeesActive);
-                }else {
-                    listFieldsEmployeesRetirement = client.getEmployees();
-                    createTable(listFieldsEmployeesRetirement);
+                ArrayList<ArrayList<String >> fieldEmployees = client.getEmployees();
+                if (fieldEmployees != null && !fieldEmployees.isEmpty()) {
+                    if (client.getEmployedStatus() != null && client.getEmployedStatus().equals("Activo")) {
+                        listFieldsEmployeesActive = client.getEmployees();
+                        createTable(listFieldsEmployeesActive);
+                    } else {
+                        listFieldsEmployeesRetirement = client.getEmployees();
+                        createTable(listFieldsEmployeesRetirement);
+                    }
                 }
             }
         };
         client.addEventListener(loadEmployees);
     }
-
+    /**
+     * Método para manejar el evento que se genera en el objeto de clase Client cuando se carga un valor en el atributo employed y asi
+     * actualizar los elementos contenidos en JPanel de empleado donde se visualizan los atributos de un empleado en segundo plano
+     */
     public void eventLoadEmployed() {
         EventChangeClientListener loadEmployed = new EventChangeClientListener() {
             @Override
@@ -419,7 +590,10 @@ public class WindowClient extends JFrame {
         };
         client.addEventListener(loadEmployed);
     }
-
+    /**
+     * Método para manejar el evento que se genera en el objeto de clase Client cuando se carga un valor en el atributo managers y asi
+     * actualizar la lista desplegable JComboBox donde se visualizan los gerentes que fueron encontrados en la tabla de empleados en segundo plano
+     */
     public void eventLoadManagers() {
         EventChangeClientListener loadManagers = new EventChangeClientListener() {
             @Override
@@ -432,7 +606,11 @@ public class WindowClient extends JFrame {
         };
         client.addEventListener(loadManagers);
     }
-
+    /**
+     * Método para manejar el evento que se genera al seleccionar un item de la lista desplegable JComboBox de transacciones y asi
+     * actualizar la ventana principal mostrando solo el panel que corresponde a cada tipo de transacción, además de
+     * cargar en el objeto message el tipo de transacción a realizar, en segundo plano
+     */
     private void eventItemTransactionSelected() {
         listTransactionsPanelTransaction.addActionListener(new ActionListener() {
             @Override
@@ -445,6 +623,7 @@ public class WindowClient extends JFrame {
                         setEnableItemsPanelEmployed(false);
                         idEmployedPanelEmployed.setEditable(true);
                         newIdEmployedPanelEmployed.setEditable(false);
+                        console.setText("");
                         break;
                     case "Eliminar empleado":
                         message.setType(TransactionType.DELETE_EMPLOYED);
@@ -453,58 +632,72 @@ public class WindowClient extends JFrame {
                         idEmployedPanelEmployed.setEditable(true);
                         retirementDateEmployedPanelEmployed.setEditable(true);
                         newIdEmployedPanelEmployed.setEditable(false);
+                        console.setText("");
                         break;
                     case "Consultar empleados activos":
                         message.setType(TransactionType.SELECT_ALL_EMPLOYED);
                         panelSetVisible(panelTableEmployees);
                         createTable(listFieldsEmployeesActive);
+                        console.setText("");
                         break;
                     case "Consultar empleados retirados":
                         message.setType(TransactionType.SELECT_ALL_EMPLOYED_RETIREMENT);
                         panelSetVisible(panelTableEmployees);
                         createTable(listFieldsEmployeesRetirement);
+                        console.setText("");
                         break;
                     case "Ingresar Pais":
                         message.setType(TransactionType.INSERT_COUNTRY);
                         panelSetVisible(panelCountry);
+                        console.setText("");
                         break;
                     case "Ingresar Ciudad":
                         message.setType(TransactionType.INSERT_CITY);
                         panelSetVisible(panelCity);
                         loadingCountries();
+                        console.setText("");
                         break;
                     case "Ingresar Localización":
                         message.setType(TransactionType.INSERT_LOCALIZATION);
                         panelSetVisible(panelLocalization);
                         loadingCities();
+                        console.setText("");
                         break;
                     case "Ingresar Departamento":
                         message.setType(TransactionType.INSERT_DEPARTMENT);
                         panelSetVisible(panelDepartment);
                         loadingLocalizations();
+                        console.setText("");
                         break;
                     case "Ingresar Cargo":
                         message.setType(TransactionType.INSERT_POSITION);
                         panelSetVisible(panelPosition);
+                        console.setText("");
                         break;
                     case "Actualizar empleado":
                         message.setType(TransactionType.UPDATE_EMPLOYED);
                         panelSetVisible(panelEmployed);
                         setEnableItemsPanelEmployed(true);
+                        console.setText("");
                         break;
                     case "Ingresar empleado":
                         message.setType(TransactionType.INSERT_EMPLOYED);
                         panelSetVisible(panelEmployed);
                         setEnableItemsPanelEmployed(true);
                         newIdEmployedPanelEmployed.setEditable(false);
+                        console.setText("");
                         break;
                 }
             }
         });
     }
-
+    /**
+     * Método que permite cargar la JTable de empleados con los empleados encontrados en la base de datos según tipo de consulta Activo o Retirado
+     * @param employees ArrayList de empleados encontrados en la base de datos según tipo de consulta Activo o Retirado
+     */
     private void createTable(ArrayList<ArrayList<String>> employees) {
-        String[] columnNames = {"ID", "Primer nombre", "Segundo Nombre", "Primer Apellido", "Segundo Apellido", "Cargo", "Departamento"};
+        String[] columnNames = {"ID", "Primer nombre", "Segundo Nombre", "Primer Apellido",
+                "Segundo Apellido", "Cargo", "Departamento"};
         String[][] data;
         if (employees != null && !employees.isEmpty()) {
             data = new String[employees.size()][employees.get(0).size()];
@@ -520,18 +713,26 @@ public class WindowClient extends JFrame {
         DefaultTableModel tm = new DefaultTableModel(data, columnNames);
         tableEmployees.setModel(tm);
     }
-
-
+    /**
+     * Método para manejo de no visibilizar paneles según item seleccionado de la lista de sentencias posibles a efectuar
+     */
     private void panelsNotVisible() {
         panels.forEach(panel -> panel.setVisible(false));
     }
 
+    /**
+     * Método para manejar visibilidad de un panel en la ventana principal
+     * @param panelVisible
+     */
     private void panelSetVisible(JPanel panelVisible) {
         panelsNotVisible();
         panelVisible.setVisible(true);
     }
-
-
+    /**
+     * Método para manejo de habilitación de elementos de panel de empleados según el tipo de transacción
+     * seleccionada en la lista desplegable Insertar, consultar, actualizar, eliminar
+     * @param enable Valor booleano para cambio de estado de habilitación de elementos del panel
+     */
     private void setEnableItemsPanelEmployed(boolean enable) {
         idEmployedPanelEmployed.setEditable(enable);
         firstNameEmployedPanelEmployed.setEditable(enable);
@@ -548,7 +749,6 @@ public class WindowClient extends JFrame {
         newIdEmployedPanelEmployed.setEditable(enable);
         retirementDateEmployedPanelEmployed.setEditable(false);
     }
-
     /**
      * Método para manejar el cierre de la ventana al oprimir el botón de cerrar o finalizar
      */
@@ -560,7 +760,11 @@ public class WindowClient extends JFrame {
             }
         });
     }
-
+    /**
+     * Método para crear elementos de modo personalizado con el fin de establecer formato de tipo número a los
+     * elementos de tipo JFormattedTextField y cargar listado or defecto de JComboBox para listado de transacciones
+     * que se pueden ejecutar
+     */
     private void createUIComponents() {
         idEmployedPanelEmployed = new JFormattedTextField(0);
         newIdEmployedPanelEmployed = new JFormattedTextField(0);
@@ -571,8 +775,11 @@ public class WindowClient extends JFrame {
         minimumSalaryPanelPosition = new JFormattedTextField(0);
         maximumSalaryPanelPosition = new JFormattedTextField(0);
         idPositionPanelPosition = new JFormattedTextField(0);
-        listTransactionsPanelTransaction = new JComboBox<>(new String[]{"Ingresar empleado", "Actualizar empleado", "Consultar empleado",
-                "Consultar empleados activos", "Consultar empleados retirados", "Eliminar empleado", "Ingresar Pais", "Ingresar Ciudad",
+        listTransactionsPanelTransaction = new JComboBox<>(new String[]{"Ingresar empleado",
+                "Actualizar empleado", "Consultar empleado",
+                "Consultar empleados activos", "Consultar empleados retirados", "Eliminar empleado",
+                "Ingresar Pais", "Ingresar Ciudad",
                 "Ingresar Localización", "Ingresar Departamento", "Ingresar Cargo"});
+        listTransactionsPanelTransaction.setSelectedIndex(0);
     }
 }
