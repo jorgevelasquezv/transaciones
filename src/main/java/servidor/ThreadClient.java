@@ -19,27 +19,22 @@ import java.util.*;
  * @Author Jorge Luis Velasquez Venegas
  */
 public class ThreadClient extends Thread {
-
     /**
-     * Socket: punto final para la comunicación entre clientes.
+     * Socket: punto final para la comunicación con el cliente.
      */
     private Socket socket;
-
     /**
      * ObjectInputStream: recepción en Stream de Objetos de la clase Message
      */
     private ObjectInputStream dataInputStream;
-
     /**
      * ObjectOutputStream: envío en Stream de Objetos de la clase Message
      */
     private ObjectOutputStream dataOutputStream;
-
     /**
      * Server: instancia de la clase servidor para manejo de los datos de comunicación
      */
     private Server server;
-
     /**
      * Connected: estado en que se encuentra el cliente (conectado, desconectado)
      */
@@ -71,9 +66,9 @@ public class ThreadClient extends Thread {
     @Override
     public void run() {
         try {
-        System.out.println("Cliente Conectado");
-        server.setMessageConsole("Cliente Conectado\n");
-        listen();
+            System.out.println("Cliente Conectado");
+            server.setMessageConsole("Cliente Conectado\n");
+            listen();
         } catch (Exception e) {
             System.out.println("Error al escuchar cliente " + e);
             throw new RuntimeException(e);
@@ -102,8 +97,7 @@ public class ThreadClient extends Thread {
     }
 
     /**
-     * Ejecuta la acción determinada en el atributo type del objeto message (confirmar conexión de un nuevo cliente
-     * "connect", confirmar desconexión de un cliente "disconnect", enviar mensaje a un destinatario "message")
+     * Ejecuta la acción determinada en el atributo type del objeto message que determina el tipo de transacción a efectuar en la base de datos
      *
      * @param message objeto que contiene la acción a ejecutar y los datos a procesar
      */
@@ -131,7 +125,7 @@ public class ThreadClient extends Thread {
                     StatementSQL.insertEmployed(message.getEmployed());
                     message.setResponseServer("Se Ingreso Empleado Correctamente\n");
                     selectAll(message);
-                }catch (RuntimeException e){
+                } catch (RuntimeException e) {
                     message.setResponseServer("¡¡Error ingresando empleado, ya existe un empleado con el ID indicado!!");
                     sendMessage(message);
                 }
@@ -148,31 +142,56 @@ public class ThreadClient extends Thread {
                 selectAll(message);
                 break;
             case INSERT_COUNTRY:
-                StatementSQL.insertCountry(message.getFieldsCountry());
-                message.setResponseServer("Pais Ingresado Correctamente\n");
-                sendMessage(message);
+                try {
+                    StatementSQL.insertCountry(message.getFieldsCountry());
+                    message.setResponseServer("Pais Ingresado Correctamente\n");
+                    sendMessage(message);
+                } catch (RuntimeException e) {
+                    message.setResponseServer("¡¡Error ingresando país, ya existe un país con el ID indicado!!");
+                    sendMessage(message);
+                }
                 break;
             case INSERT_CITY:
-                StatementSQL.insertCity(message.getFieldsCity());
-                message.setResponseServer("Ciudad Ingresada Correctamente\n");
-                sendMessage(message);
+                try {
+                    StatementSQL.insertCity(message.getFieldsCity());
+                    message.setResponseServer("Ciudad Ingresada Correctamente\n");
+                    sendMessage(message);
+                } catch (RuntimeException e) {
+                    message.setResponseServer("¡¡Error ingresando ciudad, ya existe una ciudad con el ID indicado!!");
+                    sendMessage(message);
+                }
                 break;
             case INSERT_POSITION:
-                StatementSQL.insertPosition(message.getFieldsPosition());
-                message.setResponseServer("Cargo Ingresado Correctamente\n");
-                sendMessage(message);
-                sendMessage(StatementSQL.selectPositions());
+                try {
+                    StatementSQL.insertPosition(message.getFieldsPosition());
+                    message.setResponseServer("Cargo Ingresado Correctamente\n");
+                    sendMessage(message);
+                    sendMessage(StatementSQL.selectPositions());
+                } catch (RuntimeException e) {
+                    message.setResponseServer("¡¡Error ingresando cargo, ya existe un cargo con el ID indicado!!");
+                    sendMessage(message);
+                }
                 break;
             case INSERT_DEPARTMENT:
-                StatementSQL.insertDepartment(message.getFieldsDepartment());
-                message.setResponseServer("Departamento Ingresado Correctamente\n");
-                sendMessage(message);
-                sendMessage(StatementSQL.selectDepartments());
+                try {
+                    StatementSQL.insertDepartment(message.getFieldsDepartment());
+                    message.setResponseServer("Departamento Ingresado Correctamente\n");
+                    sendMessage(message);
+                    sendMessage(StatementSQL.selectDepartments());
+                } catch (RuntimeException e) {
+                    message.setResponseServer("¡¡Error ingresando departamento, ya existe un departamento con el ID indicado!!");
+                    sendMessage(message);
+                }
                 break;
             case INSERT_LOCALIZATION:
-                StatementSQL.insertLocalization(message.getFieldsLocalization());
-                message.setResponseServer("Localización Ingresada Correctamente\n");
-                sendMessage(message);
+                try {
+                    StatementSQL.insertLocalization(message.getFieldsLocalization());
+                    message.setResponseServer("Localización Ingresada Correctamente\n");
+                    sendMessage(message);
+                } catch (RuntimeException e) {
+                    message.setResponseServer("¡¡Error ingresando localización, ya existe una localización con el ID indicado!!");
+                    sendMessage(message);
+                }
                 break;
             case SELECT_POSITIONS:
                 sendMessage(StatementSQL.selectPositions());
@@ -194,26 +213,36 @@ public class ThreadClient extends Thread {
                 break;
         }
     }
-
+    /**
+     * selectAll: método que permite realizar consulta de listado de empleados por estado (Activo o Retirado)
+     * empleando la clase static StatementSQL
+     *
+     * @param message objeto con el tipo de sentencia a efectuar y los datos para llevarla a cabo
+     */
     private void selectAll(Message message) {
         ArrayList<ArrayList<String>> employeesFound = StatementSQL.findAllEmployees(message.getEmployedStatus());
         message.setEmployees(employeesFound);
         sendMessage(message);
     }
-
+    /**
+     * selectOne: método que permite realizar consulta de un empleado por ID
+     * empleando la clase static StatementSQL
+     *
+     * @param message objeto con el tipo de sentencia a efectuar y los datos para llevarla a cabo
+     */
     private void selectOne(Message message) {
         ArrayList<String> fieldsEmployed = StatementSQL.findEmployed(message.getIdEmployed());
         message.setEmployed(fieldsEmployed);
-        if (fieldsEmployed.isEmpty()){
+        if (fieldsEmployed.isEmpty()) {
             message.setResponseServer("No existe empleado con el ID indicado");
         }
         sendMessage(message);
     }
-
     /**
-     * Envío de mensajes a cliente en el otro extremo del socket
+     * sendMessage: método para envío de mensajes al cliente en el otro extremo del socket con la respuesta de la
+     * transacción efectuada
      *
-     * @param message
+     * @param message objeto con el tipo de sentencia a efectuada y los datos de respuesta de la sentencia
      */
     private void sendMessage(Message message) {
         try {
@@ -222,9 +251,8 @@ public class ThreadClient extends Thread {
             System.out.println("Error enviando mensaje " + e);
         }
     }
-
     /**
-     * Se indica que el cliente está desconectado para finalizar el loop y se cierra conexión del socket del lado del
+     * endConnection: método que permite finalizar el loop y él cierra de conexión del socket del lado del
      * servidor
      */
     public void endConnection() {

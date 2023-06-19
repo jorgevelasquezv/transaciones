@@ -1,7 +1,6 @@
 package servidor;
 
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
@@ -16,32 +15,26 @@ import java.io.IOException;
  * @Author Jorge Luis Velasquez
  */
 public class WindowServer extends JFrame {
-
     /**
      * Console: instancia de JTextArea para visualizar en ventana el estado del servidor
      */
     private JTextArea console;
-
     /**
      * PanelMain: instancia de JPanel empleado como contenedor principal de los demás elementos de la ventana
      */
     private JPanel panelMain;
-
     /**
      * Exit: botón para cerrar conexión y terminar programa
      */
     private JButton exit;
-
     /**
      * Server: instancia de la clase server para obtener todos los métodos y atributos del servidor
      */
     private Server server;
-
     /**
      * MessageActual: String que contiene el mensaje actual que se visualiza en Text Área como estado del servidor
      */
     private String messageActual;
-
     /**
      * Constructor de la clase WindowServer. Crea los objetos para visualización gráfica de ventana de configuración,
      * objeto de la clase Server para establecer iniciar el servidor en escucha activa, ventana principal de interacción
@@ -61,8 +54,6 @@ public class WindowServer extends JFrame {
         printDataIntoConsole();
         closeConnection();
     }
-
-
     /**
      * Método para manejar el evento que se genera en el objeto de clase Server cuando se recibe una nueva conexión o
      * se solicita desconexión y asi actualizar el área multi línea donde se visualizan los mensajes enviados y
@@ -80,9 +71,7 @@ public class WindowServer extends JFrame {
             }
         };
         server.addEventListener(messageConsoleListener);
-
     }
-
     /**
      * Método para manejar el cierre de la ventana al oprimir el botón de cerrar o finalizar
      */

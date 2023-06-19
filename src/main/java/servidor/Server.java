@@ -19,7 +19,9 @@ import java.util.ListIterator;
  */
 @Getter
 public class Server extends Connection {
-
+    /**
+     * Mensaje a enviar al cliente con confirmación de transacción
+     */
     private String messageConsole;
 
     /**
@@ -27,13 +29,10 @@ public class Server extends Connection {
      * servidor
      */
     private ThreadClient client;
-
     /**
      * Listado de eventos a escuchar
      */
     private static ArrayList listeners;
-
-
     /**
      * Constructor de la clase Server para crear servidor de conexión mediante
      * sockets, el servidor permanece en escucha permanente de las solicitudes
@@ -47,7 +46,6 @@ public class Server extends Connection {
         listeners = new ArrayList<>();
         this.start();
     }
-
     /**
      * Método que se ejecuta al terminar de construir el objeto de la clase
      * Server, el cual da inicio al hilo de programación concurrente,
@@ -69,7 +67,6 @@ public class Server extends Connection {
             System.exit(0);
         }
     }
-
     /**
      * Establece el valor del mensaje que se debe mostrar en consola
      *
@@ -80,7 +77,6 @@ public class Server extends Connection {
         this.messageConsole = messageConsole;
         this.triggerMessageEvent();
     }
-
     /**
      * Agrega un evento al listado de eventos a escuchar
      *
@@ -89,7 +85,6 @@ public class Server extends Connection {
     public void addEventListener(EventChangeServerListener listener) {
         listeners.add(listener);
     }
-
     /**
      * Método para disparar el evento cuando cambie la variable
      * message que contiene el mensaje que se debe mostrar en
