@@ -7,14 +7,11 @@
     <list default="true" id="b05b3e25-1a51-4850-946b-83abcab84532" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/cliente/Client.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/cliente/Client.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/cliente/EventChangeClientListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/cliente/EventChangeClientListener.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/cliente/WindowClient.form" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/cliente/WindowClient.form" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/cliente/WindowClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/cliente/WindowClient.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/connection/Message.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/connection/Message.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/connection/StatementSQL.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/connection/StatementSQL.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/connection/TransactionType.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/connection/TransactionType.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/servidor/Server.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/servidor/Server.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/servidor/ThreadClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/servidor/ThreadClient.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/servidor/WindowServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/servidor/WindowServer.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -44,20 +41,20 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "extract.method.default.visibility": "private",
-    "last_opened_file_path": "C:/Users/georg/Documents/JORGE/POLITECNICO/Semestre_4/Persistencia _Y_Datos_Transaccionales/Trabajo_Colaborativo/transaciones/src/main/java",
-    "project.structure.last.edited": "Problems",
-    "project.structure.proportion": "0.15",
-    "project.structure.side.proportion": "0.2",
-    "settings.editor.selected.configurable": "screenshoter"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;extract.method.default.visibility&quot;: &quot;private&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/georg/Documents/JORGE/POLITECNICO/Semestre_4/Persistencia _Y_Datos_Transaccionales/Trabajo_Colaborativo/transaciones/src/main/java&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Problems&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;screenshoter&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\georg\Documents\JORGE\POLITECNICO\Semestre_4\Persistencia _Y_Datos_Transaccionales\Trabajo_Colaborativo\transaciones\src\main\java" />
@@ -118,6 +115,8 @@
       <workItem from="1686428769993" duration="15947000" />
       <workItem from="1687039587661" duration="23943000" />
       <workItem from="1687194834661" duration="7516000" />
+      <workItem from="1687310298011" duration="8289000" />
+      <workItem from="1687386520651" duration="9472000" />
     </task>
     <servers />
   </component>

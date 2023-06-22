@@ -1,5 +1,6 @@
 package cliente;
 
+import connection.Employed;
 import connection.Message;
 import connection.TransactionType;
 
@@ -175,10 +176,6 @@ public class WindowClient extends JFrame {
      */
     private JComboBox managerEmployedPanelEmployed                                  ;
     /**
-     * newIdEmployedPanelEmployed: entrada de texto de tipo JTextField, permite el ingreso de un nuevo ID de empleado, ubicado en el JPanel de empleado
-     */
-    private JFormattedTextField newIdEmployedPanelEmployed                             ;
-    /**
      * idCountryPanelCountry: entrada de texto de tipo JTextField, permite el ingreso de ID de un país, ubicado en el JPanel de país
      */
     private JFormattedTextField idCountryPanelCountry;
@@ -199,13 +196,18 @@ public class WindowClient extends JFrame {
      */
     private JFormattedTextField idPositionPanelPosition;
     /**
-     * listDepartmentsPanelLocalization: lista desplegable de tipo JComboBox que permite visualizar y/o seleccionar localización del listado de localizaciones consultado en la base de datos
-     */
-    private JComboBox listDepartmentsPanelLocalization;
-    /**
      * retirementDateEmployedPanelEmployed: entrada de texto de tipo JTextField, permite el ingreso o visualización de la fecha de retiro de un empleado, ubicado en el JPanel de empleado
      */
     private JTextField retirementDateEmployedPanelEmployed;
+    /**
+     * nameCityPanelEmployed: lista desplegable de tipo JComboBox que permite visualizar y/o seleccionar
+     * la ciudad donde se encuentra un empleado, ubicado en el JPanel de empleado
+     */
+    private JComboBox listCityPanelEmployed;
+    /**
+     * addressPanelEmployed: entrada de texto de tipo JTextField, permite el ingreso o visualización de la dirección de un empleado, ubicado en el JPanel de empleado
+     */
+    private JTextField addressPanelEmployed;
     /**
      * panels: ArrayList con lista de paneles creados en la ventana principal para manipular sui visibilidad según
      * transacción a efectuar, la cual es manejada a través del evento del selectItem en la lista desplegable de transacciones
@@ -331,6 +333,7 @@ public class WindowClient extends JFrame {
             loadingPositions();
             loadingDepartments();
             loadingManagers();
+            loadingCities();
         } catch (IOException e) {
             System.out.println("Error de conexión con el servidor: " + e.getMessage());
             System.exit(0);
@@ -363,15 +366,9 @@ public class WindowClient extends JFrame {
     private void selectStatementToSend(ArrayList<String> fieldsEmployed) {
         switch (message.getType()) {
             case INSERT_EMPLOYED:
-                loadListFieldsEmployed(fieldsEmployed, managerEmployedPanelEmployed);
-                fieldsEmployed.add((String) employedDepartmentPanelEmployed.getSelectedItem());
-                message.setEmployed(fieldsEmployed);
-                break;
             case UPDATE_EMPLOYED:
-                fieldsEmployed.add((String) managerEmployedPanelEmployed.getSelectedItem());
-                loadListFieldsEmployed(fieldsEmployed, employedDepartmentPanelEmployed);
-                fieldsEmployed.add(newIdEmployedPanelEmployed.getText());
-                message.setEmployed(fieldsEmployed);
+                loadEmployed();
+                message.setFieldsEmployed(fieldsEmployed);
                 break;
             case DELETE_EMPLOYED:
                 message.setIdEmployed((Integer) idEmployedPanelEmployed.getValue());
@@ -401,7 +398,6 @@ public class WindowClient extends JFrame {
                         Arrays.asList(
                                 String.valueOf(idLocalizationPanelLocalization.getValue()),
                                 (String) listCityPanelLocalization.getSelectedItem(),
-                                (String) listDepartmentsPanelLocalization.getSelectedItem(),
                                 addressPanelLocalization.getText()
                         ))
                 );
@@ -435,23 +431,28 @@ public class WindowClient extends JFrame {
         }
     }
     /**
-     * Método para cargar ArrayList de campos de empleado según la transacción a efectuar sobre la tabla de empleados
-     * @param fieldsEmployed ArrayList de campos de empleado
-     * @param comboBoxAlterno Lista desplegable que contiene el valor seleccionado según el tipo de transacción a
-     *                        efectuar Insert o Update
+     * Método para crear objeto de la clase Employed con atributos de empleado
+     *
      */
-    private void loadListFieldsEmployed(ArrayList<String> fieldsEmployed, JComboBox comboBoxAlterno) {
-        fieldsEmployed.add(String.valueOf(idEmployedPanelEmployed.getValue()));
-        fieldsEmployed.add(firstNameEmployedPanelEmployed.getText());
-        fieldsEmployed.add(secondNameEmployedPanelEmployed.getText());
-        fieldsEmployed.add(surnameEmployedPanelEmployed.getText());
-        fieldsEmployed.add(secondSurnameEmployedPanelEmployed.getText());
-        fieldsEmployed.add(emailEmployedPanelEmployed.getText());
-        fieldsEmployed.add(birthdateEmployedPanelEmployed.getText());
-        fieldsEmployed.add(salaryEmployedPanelEmployed.getText());
-        fieldsEmployed.add(commissionEmployedPanelEmployed.getText());
-        fieldsEmployed.add((String) listPositionsPanelEmployed.getSelectedItem());
-        fieldsEmployed.add((String) comboBoxAlterno.getSelectedItem());
+    private void loadEmployed() {
+        Employed employed = new Employed();
+
+        employed.setID(String.valueOf(idEmployedPanelEmployed.getValue()));
+        employed.setName(firstNameEmployedPanelEmployed.getText());
+        employed.setLastName(secondNameEmployedPanelEmployed.getText());
+        employed.setSurname(surnameEmployedPanelEmployed.getText());
+        employed.setSecondSurname(secondSurnameEmployedPanelEmployed.getText());
+        employed.setBirthday(birthdateEmployedPanelEmployed.getText());
+        employed.setEmail(emailEmployedPanelEmployed.getText());
+        employed.setSalary(salaryEmployedPanelEmployed.getText());
+        employed.setCommission(commissionEmployedPanelEmployed.getText());
+        employed.setPosition((String) listPositionsPanelEmployed.getSelectedItem());
+        employed.setManager((String) managerEmployedPanelEmployed.getSelectedItem());
+        employed.setDepartment((String) employedDepartmentPanelEmployed.getSelectedItem());
+        employed.setCity((String) listCityPanelEmployed.getSelectedItem());
+        employed.setAddress(addressPanelEmployed.getText());
+
+        message.setEmployed(employed);
     }
     /**
      * Método para manejar el evento que se genera en el objeto de clase Client cuando se recibe un mensaje y asi
@@ -489,11 +490,7 @@ public class WindowClient extends JFrame {
             @Override
             void onDepartments(EventChangeClient event) {
                 employedDepartmentPanelEmployed.removeAllItems();
-                listDepartmentsPanelLocalization.removeAllItems();
-                client.getDepartments().forEach(department -> {
-                    employedDepartmentPanelEmployed.addItem(department);
-                    listDepartmentsPanelLocalization.addItem(department);
-                });
+                client.getDepartments().forEach(employedDepartmentPanelEmployed::addItem);
             }
         };
         client.addEventListener(loadDepartments);
@@ -507,7 +504,10 @@ public class WindowClient extends JFrame {
             @Override
             void onCities(EventChangeClient event) {
                 listCityPanelLocalization.removeAllItems();
-                client.getCities().forEach(listCityPanelLocalization::addItem);
+                client.getCities().forEach(city -> {
+                    listCityPanelLocalization.addItem(city);
+                    listCityPanelEmployed.addItem((city));
+                });
             }
         };
         client.addEventListener(loadCities);
@@ -573,7 +573,6 @@ public class WindowClient extends JFrame {
                 ArrayList<String> fieldsEmployed = client.getEmployed();
                 if (!fieldsEmployed.isEmpty()) {
                     idEmployedPanelEmployed.setText(fieldsEmployed.get(0));
-                    newIdEmployedPanelEmployed.setText(fieldsEmployed.get(0));
                     firstNameEmployedPanelEmployed.setText(fieldsEmployed.get(1));
                     secondNameEmployedPanelEmployed.setText(fieldsEmployed.get(2));
                     surnameEmployedPanelEmployed.setText(fieldsEmployed.get(3));
@@ -585,6 +584,8 @@ public class WindowClient extends JFrame {
                     listPositionsPanelEmployed.setSelectedItem(fieldsEmployed.get(9));
                     employedDepartmentPanelEmployed.setSelectedItem(fieldsEmployed.get(10));
                     managerEmployedPanelEmployed.setSelectedItem(fieldsEmployed.get(11));
+                    listCityPanelEmployed.setSelectedItem(fieldsEmployed.get(12));
+                    addressPanelEmployed.setText(fieldsEmployed.get(13));
                 }
             }
         };
@@ -621,8 +622,8 @@ public class WindowClient extends JFrame {
                         message.setType(TransactionType.SELECT_ONE_EMPLOYED);
                         panelSetVisible(panelEmployed);
                         setEnableItemsPanelEmployed(false);
+                        clearFieldsEmployed();
                         idEmployedPanelEmployed.setEditable(true);
-                        newIdEmployedPanelEmployed.setEditable(false);
                         console.setText("");
                         break;
                     case "Eliminar empleado":
@@ -631,7 +632,6 @@ public class WindowClient extends JFrame {
                         setEnableItemsPanelEmployed(false);
                         idEmployedPanelEmployed.setEditable(true);
                         retirementDateEmployedPanelEmployed.setEditable(true);
-                        newIdEmployedPanelEmployed.setEditable(false);
                         console.setText("");
                         break;
                     case "Consultar empleados activos":
@@ -684,20 +684,30 @@ public class WindowClient extends JFrame {
                         message.setType(TransactionType.INSERT_EMPLOYED);
                         panelSetVisible(panelEmployed);
                         setEnableItemsPanelEmployed(true);
-                        newIdEmployedPanelEmployed.setEditable(false);
                         console.setText("");
                         break;
                 }
             }
         });
     }
+
+    /**
+     * clearFieldsEmployed: método para limpiar todos los componentes del panel empleado
+     */
+    private void clearFieldsEmployed() {
+         Arrays.stream(panelEmployed.getComponents())
+                 .filter(component -> component instanceof JTextField)
+                 .forEach(component -> ((JTextField) component).setText(""));
+        idEmployedPanelEmployed.setValue(0);
+    }
+
     /**
      * Método que permite cargar la JTable de empleados con los empleados encontrados en la base de datos según tipo de consulta Activo o Retirado
      * @param employees ArrayList de empleados encontrados en la base de datos según tipo de consulta Activo o Retirado
      */
     private void createTable(ArrayList<ArrayList<String>> employees) {
         String[] columnNames = {"ID", "Primer nombre", "Segundo Nombre", "Primer Apellido",
-                "Segundo Apellido", "Cargo", "Departamento"};
+                "Segundo Apellido", "Cargo", "Departamento", "Ciudad", "Dirección"};
         String[][] data;
         if (employees != null && !employees.isEmpty()) {
             data = new String[employees.size()][employees.get(0).size()];
@@ -708,7 +718,7 @@ public class WindowClient extends JFrame {
                 }
             }
         }else {
-            data = new String[1][7];
+            data = new String[1][columnNames.length];
         }
         DefaultTableModel tm = new DefaultTableModel(data, columnNames);
         tableEmployees.setModel(tm);
@@ -746,7 +756,8 @@ public class WindowClient extends JFrame {
         employedDepartmentPanelEmployed.setEnabled(enable);
         emailEmployedPanelEmployed.setEditable(enable);
         managerEmployedPanelEmployed.setEnabled(enable);
-        newIdEmployedPanelEmployed.setEditable(enable);
+        listCityPanelEmployed.setEnabled(enable);
+        addressPanelEmployed.setEditable(enable);
         retirementDateEmployedPanelEmployed.setEditable(false);
     }
     /**
@@ -767,7 +778,6 @@ public class WindowClient extends JFrame {
      */
     private void createUIComponents() {
         idEmployedPanelEmployed = new JFormattedTextField(0);
-        newIdEmployedPanelEmployed = new JFormattedTextField(0);
         idCountryPanelCountry = new JFormattedTextField(0);
         idCityPanelCity = new JFormattedTextField(0);
         idLocalizationPanelLocalization = new JFormattedTextField(0);

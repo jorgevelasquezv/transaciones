@@ -206,7 +206,7 @@ public class Client extends Connection {
                 break;
             case SELECT_ONE_EMPLOYED:
                 setMessage(message.getResponseServer());
-                setEmployed(message.getEmployed());
+                setEmployed(message.getFieldsEmployed());
                 break;
             case SELECT_MANAGERS:
                 setManagers(message.getManagers());

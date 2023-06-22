@@ -62,10 +62,12 @@ public class Message implements Serializable {
      * employees: listado de empleados con sus atributos contenidos en la tabla empleados de la base de datos
      */
     private ArrayList<ArrayList<String>> employees;
+
+    private Employed employed;
     /**
      * employed: listado de atributos de un empleado contenido en la tabla empleado de la base de datos
      */
-    private ArrayList<String> employed;
+    private ArrayList<String> fieldsEmployed;
     /**
      * managers: listado de cargos de gerentes contenidos en la tabla empleados de la base de datos
      */
@@ -104,12 +106,13 @@ public class Message implements Serializable {
         this.countries = message.getCountries();
         this.localizations = message.getLocalizations();
         this.employees = message.getEmployees();
-        this.employed = message.getEmployed();
+        this.fieldsEmployed = message.getFieldsEmployed();
         this.managers = message.getManagers();
         this.fieldsCity = message.getFieldsCity();
         this.fieldsLocalization = message.getFieldsLocalization();
         this.fieldsDepartment = message.getFieldsDepartment();
         this.fieldsPosition = message.getFieldsPosition();
+        this.employed = message.getEmployed();
     }
     /**
      * Constructor vacío de la clase

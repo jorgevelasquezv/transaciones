@@ -232,7 +232,7 @@ public class ThreadClient extends Thread {
      */
     private void selectOne(Message message) {
         ArrayList<String> fieldsEmployed = StatementSQL.findEmployed(message.getIdEmployed());
-        message.setEmployed(fieldsEmployed);
+        message.setFieldsEmployed(fieldsEmployed);
         if (fieldsEmployed.isEmpty()) {
             message.setResponseServer("No existe empleado con el ID indicado");
         }

@@ -39,18 +39,24 @@ final public class StatementSQL {
         startConnection();
         try {
             PreparedStatement preparedStatement = connection.prepareStatement("SELECT \n" +
-                    "  empl_ID\n" +
-                    ", empl_primer_nombre\n" +
-                    ", empl_segundo_nombre\n" +
-                    ", empl_primer_apellido\n" +
-                    ", empl_segundo_apellido\n" +
-                    ", c.cargo_nombre\n" +
-                    ", d.dpto_nombre\n" +
+                    "  empl_ID AS ID\n" +
+                    ", empl_primer_nombre AS primer_nombre \n" +
+                    ", empl_segundo_nombre AS segundo_nombre\n" +
+                    ", empl_primer_apellido AS primer_apellido\n" +
+                    ", empl_segundo_apellido AS segundo_apellido\n" +
+                    ", c.cargo_nombre AS cargo\n" +
+                    ", d.dpto_nombre AS departamento\n" +
+                    ", ciud.ciud_nombre AS Ciudad\n" +
+                    ", loc.localiz_direccion AS Direccion\n" +
                     "FROM empleados \n" +
                     "INNER JOIN cargos c \n" +
                     "ON c.cargo_ID = empl_cargo_ID \n" +
                     "INNER JOIN departamentos d \n" +
                     "ON d.dpto_ID = empl_dpto_ID\n" +
+                    "INNER JOIN recursoshumanos.localizaciones loc\n" +
+                    "ON loc.localiz_ID = empl_localiz_ID\n" +
+                    "INNER JOIN recursoshumanos.ciudades ciud \n" +
+                    "ON ciud.ciud_ID = loc.localiz_ciudad_ID\n" +
                     "WHERE empl_estado = ?;");
             preparedStatement.setString(1, employedStatus);
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -94,17 +100,23 @@ final public class StatementSQL {
                 ", empl.empl_comision AS comision\n" +
                 ", c.cargo_nombre AS cargo\n" +
                 ", d.dpto_nombre AS departamento\n" +
-                ", cg.cargo_nombre AS Gerencia \n" +
-                "FROM recursoshumanos.empleados empl \n" +
+                ", cg.cargo_nombre AS Gerencia\n" +
+                ", ciud.ciud_nombre AS Ciudad\n" +
+                ", loc.localiz_direccion AS Direccion\n" +
+                "FROM recursoshumanos.empleados empl\n" +
                 "INNER JOIN recursoshumanos.cargos c \n" +
                 "ON c.cargo_ID = empl_cargo_ID \n" +
                 "INNER JOIN recursoshumanos.departamentos d \n" +
                 "ON d.dpto_ID = empl_dpto_ID\n" +
                 "INNER JOIN recursoshumanos.empleados e \n" +
-                "ON empl.empl_gerente_ID = e.empl_ID \n" +
-                "INNER JOIN recursoshumanos.cargos cg \n" +
-                "ON e.empl_cargo_ID = cg.cargo_ID \n" +
-                "WHERE empl.empl_ID = ? \n" +
+                "ON empl.empl_gerente_ID = e.empl_ID\n" +
+                "INNER JOIN recursoshumanos.cargos cg\n" +
+                "ON e.empl_cargo_ID = cg.cargo_ID\n" +
+                "INNER JOIN recursoshumanos.localizaciones loc\n" +
+                "ON loc.localiz_ID = empl.empl_localiz_ID\n" +
+                "INNER JOIN recursoshumanos.ciudades ciud \n" +
+                "ON ciud.ciud_ID = loc.localiz_ciudad_ID\n" +
+                "WHERE empl.empl_ID = ?\n" +
                 ";")) {
             preparedStatement.setInt(1, employedId);
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -130,36 +142,63 @@ final public class StatementSQL {
     /**
      * insertEmployed: método que permite realizar inserción de empleado en la base de datos, haciendo sub consultas
      * para obtener ID de cargo, ID de gerente, ID de departamento por nombre de dichos atributos.
-     * @param fieldsEmployed ArrayList con atributos de empleado para ingresarlo en la base de datos
+     * @param employed Objeto de la clase Employed con los atributos de empleado para ingresarlo en la base de datos
      */
-    public static void insertEmployed(ArrayList<String> fieldsEmployed) {
+    public static void insertEmployed(Employed employed) {
         startConnection();
-        try (PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO recursoshumanos.empleados\n" +
-                "(\n" +
-                "  empl_ID\n" +
-                ", empl_primer_nombre\n" +
-                ", empl_segundo_nombre\n" +
-                ", empl_primer_apellido\n" +
-                ", empl_segundo_apellido\n" +
-                ", empl_email\n" +
-                ", empl_fecha_nac\n" +
-                ", empl_sueldo\n" +
-                ", empl_comision\n" +
-                ", empl_cargo_ID\n" +
-                ", empl_gerente_ID\n" +
-                ", empl_dpto_ID\n" +
-                ") \n" +
-                "VALUES \n" +
-                "(?, ?, ?, ?, ?, ?, ?, ?, ?" +
-                ", (select cargo_ID from recursoshumanos.cargos where cargo_nombre = ?)\n" +
-                ", (select e.empl_ID from recursoshumanos.empleados e where empl_cargo_ID " +
-                "= (select cargo_ID from recursoshumanos.cargos where cargo_nombre = ?))\n" +
-                ", (select dpto_ID from recursoshumanos.departamentos where dpto_nombre = ?)\n" +
-                ");")) {
-            preparedStatement.setInt(1, Integer.parseInt(fieldsEmployed.get(0)));
-            for (int index = 1; index < fieldsEmployed.size(); index++) {
-                preparedStatement.setString(index + 1, fieldsEmployed.get(index));
-            }
+        PreparedStatement preparedStatement;
+        try {
+            preparedStatement= connection.prepareStatement("INSERT INTO \n" +
+                    "localizaciones (localiz_ID, localiz_ciudad_ID, localiz_direccion) \n" +
+                    "VALUES (\n" +
+                    "(SELECT MAX(loc.localiz_ID) FROM localizaciones loc) + 1 \n" +
+                    ", (SELECT ciud_ID FROM ciudades WHERE ciud_nombre = ?)\n" +
+                    ", ?\n" +
+                    ");");
+
+            preparedStatement.setString(1, employed.getCity());
+            preparedStatement.setString(2, employed.getAddress());
+            preparedStatement.executeUpdate();
+
+
+            preparedStatement = connection.prepareStatement("INSERT INTO recursoshumanos.empleados\n" +
+                    "(\n" +
+                    "  empl_ID\n" +
+                    ", empl_primer_nombre\n" +
+                    ", empl_segundo_nombre\n" +
+                    ", empl_primer_apellido\n" +
+                    ", empl_segundo_apellido\n" +
+                    ", empl_email\n" +
+                    ", empl_fecha_nac\n" +
+                    ", empl_sueldo\n" +
+                    ", empl_comision\n" +
+                    ", empl_localiz_ID\n"+
+                    ", empl_cargo_ID\n" +
+                    ", empl_gerente_ID\n" +
+                    ", empl_dpto_ID\n" +
+                    ") \n" +
+                    "VALUES \n" +
+                    "(?, ?, ?, ?, ?, ?, ?, ?, ?" +
+                    ", (SELECT MAX(loc.localiz_ID) FROM localizaciones loc)" +
+                    ", (SELECT cargo_ID FROM recursoshumanos.cargos WHERE cargo_nombre = ?)\n" +
+                    ", (SELECT e.empl_ID FROM recursoshumanos.empleados e WHERE empl_cargo_ID " +
+                    "= (SELECT cargo_ID FROM recursoshumanos.cargos WHERE cargo_nombre = ?))\n" +
+                    ", (SELECT dpto_ID FROM recursoshumanos.departamentos WHERE dpto_nombre = ?)\n" +
+                    ");");
+
+            preparedStatement.setString(1, employed.getID());
+            preparedStatement.setString(2, employed.getName());
+            preparedStatement.setString(3, employed.getLastName());
+            preparedStatement.setString(4, employed.getSurname());
+            preparedStatement.setString(5, employed.getSecondSurname());
+            preparedStatement.setString(6, employed.getEmail());
+            preparedStatement.setString(7, employed.getBirthday());
+            preparedStatement.setString(8, employed.getSalary());
+            preparedStatement.setString(9, employed.getCommission());
+            preparedStatement.setString(10, employed.getPosition());
+            preparedStatement.setString(11, employed.getManager());
+            preparedStatement.setString(12, employed.getDepartment());
+
             preparedStatement.executeUpdate();
             commit();
         } catch (SQLException e) {
@@ -173,9 +212,11 @@ final public class StatementSQL {
      * crear una tabla temporal, ya que MySQL no permite realizar sub consulta de la misma tabla en la que se realizara
      * la actualización de una fila. Se realizan sub consultas a las tablas de cargos, departamentos y la tabla temporal
      * de empleados para obtener ID de cargo, ID de departamento y ID de gerente o gerencia a la que pertenece el empleado
-     * @param fieldsEmployed ArrayList con atributos de empleado a ser actualizado en la base de datos
+     * se realiza update de los atributos de localización como dirección y ciudad correspondientes al ID de empleado en
+     * la tabla localizaciones
+     * @param employed Objeto de la clase Employed con los atributos de empleado a ser actualizado en la base de datos
      */
-    public static void updateEmployed(ArrayList<String> fieldsEmployed) {
+    public static void updateEmployed(Employed employed) {
         startConnection();
         PreparedStatement preparedStatement;
         try {
@@ -185,12 +226,22 @@ final public class StatementSQL {
                     "WHERE e.empl_cargo_ID = (\n" +
                     "SELECT cargo_ID FROM recursoshumanos.cargos \n" +
                     "WHERE cargo_nombre = ?));");
-            preparedStatement.setString(1, fieldsEmployed.get(0));
+            preparedStatement.setString(1, employed.getManager());
+            preparedStatement.executeUpdate();
+
+            preparedStatement = connection.prepareStatement("UPDATE localizaciones \n" +
+                    "SET localiz_ciudad_ID = (SELECT ciud_ID FROM ciudades WHERE ciud_nombre = ?)\n" +
+                    ", localiz_direccion = ?\n" +
+                    "WHERE localiz_ID = (\n" +
+                    "SELECT empl_localiz_ID FROM empleados \n" +
+                    "WHERE empl_ID = ?);");
+            preparedStatement.setString(1, employed.getCity());
+            preparedStatement.setString(2, employed.getAddress());
+            preparedStatement.setString(3, employed.getID());
             preparedStatement.executeUpdate();
 
             preparedStatement = connection.prepareStatement("UPDATE recursoshumanos.empleados\n" +
-                    "SET empl_ID = ?\n" +
-                    ", empl_primer_nombre = ?\n" +
+                    "SET empl_primer_nombre = ?\n" +
                     ", empl_segundo_nombre = ?\n" +
                     ", empl_primer_apellido = ?\n" +
                     ", empl_segundo_apellido = ?\n" +
@@ -198,15 +249,22 @@ final public class StatementSQL {
                     ", empl_fecha_nac = ?\n" +
                     ", empl_sueldo = ?\n" +
                     ", empl_comision = ?\n" +
-                    ", empl_cargo_ID = (select cargo_ID from recursoshumanos.cargos where cargo_nombre = ?)\n" +
-                    ", empl_gerente_ID = (select empl_ID from empl)\n" +
-                    ", empl_dpto_ID = (select dpto_ID from recursoshumanos.departamentos where dpto_nombre = ?)\n" +
+                    ", empl_cargo_ID = (SELECT cargo_ID FROM recursoshumanos.cargos WHERE cargo_nombre = ?)\n" +
+                    ", empl_gerente_ID = (SELECT empl_ID FROM empl)\n" +
+                    ", empl_dpto_ID = (SELECT dpto_ID FROM recursoshumanos.departamentos WHERE dpto_nombre = ?)\n" +
                     "WHERE (empl_ID = ?);");
 
-            for (int index = 1; index < fieldsEmployed.size(); index++) {
-                preparedStatement.setString(index, fieldsEmployed.get(index));
-            }
-
+            preparedStatement.setString(1, employed.getName());
+            preparedStatement.setString(2, employed.getLastName());
+            preparedStatement.setString(3, employed.getSurname());
+            preparedStatement.setString(4, employed.getSecondSurname());
+            preparedStatement.setString(5, employed.getEmail());
+            preparedStatement.setString(6, employed.getBirthday());
+            preparedStatement.setString(7, employed.getSalary());
+            preparedStatement.setString(8, employed.getCommission());
+            preparedStatement.setString(9, employed.getPosition());
+            preparedStatement.setString(10, employed.getDepartment());
+            preparedStatement.setString(11, employed.getID());
             preparedStatement.executeUpdate();
             commit();
         } catch (SQLException e) {
@@ -305,11 +363,10 @@ final public class StatementSQL {
     public static void insertLocalization(ArrayList<String> fieldsLocalization) {
         startConnection();
         try (PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO \n" +
-                "localizaciones (localiz_ID, localiz_ciudad_ID, localiz_dpto_ID, localiz_direccion) \n" +
+                "localizaciones (localiz_ID, localiz_ciudad_ID, localiz_direccion) \n" +
                 "VALUES (\n" +
                 "?\n" +
                 ", (SELECT ciud_ID FROM ciudades WHERE ciud_nombre = ?)\n" +
-                ", (SELECT dpto_ID FROM departamentos WHERE dpto_nombre = ?)\n" +
                 ", ?);")) {
 
             for (int index = 0; index < fieldsLocalization.size(); index++) {
@@ -469,7 +526,7 @@ final public class StatementSQL {
         }
     }
     /**
-     * selectLocalizations: método que permite consultar todas las localizaciones en la tabla localizaciones de la base de datos
+     * selectLocalizations: método que permite consultar todas las localizaciones correspondientes a los departamentos y que no pertenezcan a los empleados en la tabla localizaciones de la base de datos
      * @return objeto de la clase Message con el tipo de transacción efectuada y el listado de nombres de las localizaciones
      * encontrados
      */
@@ -477,7 +534,12 @@ final public class StatementSQL {
         Message message = new Message(TransactionType.SELECT_LOCALIZATIONS);
         startConnection();
         try (PreparedStatement preparedStatement = connection.
-                prepareStatement("SELECT localiz_direccion FROM localizaciones;")) {
+                prepareStatement("SELECT localiz_direccion \n" +
+                        "FROM localizaciones \n" +
+                        "LEFT JOIN departamentos \n" +
+                        "ON localiz_ID = dpto_localiz_ID\n" +
+                        "WHERE localiz_ID NOT IN (SELECT empl_localiz_ID FROM empleados)\n" +
+                        ";")) {
             ResultSet resultSet = preparedStatement.executeQuery();
             ArrayList<String> localizations = new ArrayList<>();
             while (resultSet.next()) {
@@ -501,8 +563,8 @@ final public class StatementSQL {
         Message message = new Message(TransactionType.SELECT_MANAGERS);
         startConnection();
         try (PreparedStatement preparedStatement = connection.
-                prepareStatement("SELECT cargo_nombre FROM recursoshumanos.cargos WHERE cargo_nombre" +
-                        "LIKE '%Gerente%';")) {
+                prepareStatement("SELECT cargo_nombre FROM cargos " +
+                        "WHERE cargo_nombre LIKE '%Gerente%';")) {
             ResultSet resultSet = preparedStatement.executeQuery();
             ArrayList<String> managers = new ArrayList<>();
             while (resultSet.next()) {
