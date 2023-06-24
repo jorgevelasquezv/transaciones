@@ -7,8 +7,8 @@
     <list default="true" id="b05b3e25-1a51-4850-946b-83abcab84532" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/cliente/Client.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/cliente/Client.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/cliente/WindowClient.form" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/cliente/WindowClient.form" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/cliente/WindowClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/cliente/WindowClient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/connection/Employed.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/connection/EmployedDTO.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/connection/Message.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/connection/Message.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/connection/StatementSQL.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/connection/StatementSQL.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/servidor/ThreadClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/servidor/ThreadClient.java" afterDir="false" />
@@ -116,7 +116,9 @@
       <workItem from="1687039587661" duration="23943000" />
       <workItem from="1687194834661" duration="7516000" />
       <workItem from="1687310298011" duration="8289000" />
-      <workItem from="1687386520651" duration="9472000" />
+      <workItem from="1687386520651" duration="9900000" />
+      <workItem from="1687460451682" duration="11332000" />
+      <workItem from="1687564705396" duration="632000" />
     </task>
     <servers />
   </component>

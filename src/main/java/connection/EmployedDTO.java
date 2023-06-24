@@ -4,8 +4,12 @@ import lombok.Data;
 
 import java.io.Serializable;
 
+/**
+ * Clase EmployedDTO de tipo data transfer object para manipulación y transferencia de objetos con los atributos del empleado entre sockets
+ * @Author Jorge Luis Velasquez
+ */
 @Data
-public class Employed implements Serializable {
+public class EmployedDTO implements Serializable                            {
 
     private String ID;
 
@@ -34,5 +38,7 @@ public class Employed implements Serializable {
     private String address;
 
     private String manager;
+
+    private String status;
 
 }

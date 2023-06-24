@@ -1,6 +1,7 @@
 package cliente;
 
 import connection.Connection;
+import connection.EmployedDTO;
 import connection.Message;
 import lombok.Getter;
 
@@ -43,6 +44,10 @@ public class Client extends Connection {
      */
     private String idClient;
     /**
+     * employed: objeto que contiene todos los atributos del empleado
+     */
+    private EmployedDTO employed;
+    /**
      * employedStatus: identifica el estado del empleado en la base de datos Activo o Retirado
      */
     private String employedStatus;
@@ -69,42 +74,31 @@ public class Client extends Connection {
     /**
      * employees: listado de empleados consultados en la base de datos según criterio Activo o Retirado
      */
-    private ArrayList<ArrayList<String>> employees;
-    /**
-     * employed: listado de campos obtenidos en una consulta de cliente por id a la base de datos
-     */
-    private ArrayList<String> employed;
+    private ArrayList<EmployedDTO> employees;
     /**
      * managers: listado de gerentes consultados en la tabla de empleados de la base de datos
      */
     private ArrayList<String> managers;
-
     /**
      * ObjectInputStream: recepción en Stream de Objetos de la clase Message
      */
     private ObjectInputStream objectInputStream;
-
     /**
      * ObjectOutputStream: envío en Stream de Objetos de la clase Message
      */
     private ObjectOutputStream objectOutputStream;
-
     /**
      * Connected: indica si el cliente se encuentra activo o conectado para escuchar transmisiones
      */
     private boolean connected;
-
     /**
      * Message: string con el mensaje recibido
      */
     private String message;
-
     /**
      * Listado de eventos a escuchar
      */
     private static ArrayList listeners                                              ;
-
-
     /**
      * Constructor de la clase Client para crear instancias de client con sockets y crear un chat bidireccional con el
      * servidor mediante sockets, se ejecuta el método start al terminar de construir el objeto para asi iniciar el
@@ -206,7 +200,7 @@ public class Client extends Connection {
                 break;
             case SELECT_ONE_EMPLOYED:
                 setMessage(message.getResponseServer());
-                setEmployed(message.getFieldsEmployed());
+                setEmployed(message.getEmployed());
                 break;
             case SELECT_MANAGERS:
                 setManagers(message.getManagers());
@@ -366,6 +360,14 @@ public class Client extends Connection {
     }
 
     /**
+     * establece el valor de la variable employed la cual contendrá los atributos del empleado extraídos de la tabla empleados en la base de datos
+     * @param employed objeto de la clase empleado que contiene los atributos del empleado extraídos de la tabla empleados de la base de datos
+     */
+    public void setEmployed(EmployedDTO employed) {
+        this.employed = employed;
+        this.triggerEmployedEvent();
+    }
+    /**
      * Retorna estado en que se encuentra el cliente para escuchar mensajes
      *
      * @return estado de conexión
@@ -428,21 +430,10 @@ public class Client extends Connection {
      * @param employees ArrayList con listado de campos por cliente consultado
      *                  en la base de datos
      */
-    public void setEmployees(ArrayList<ArrayList<String>> employees) {
+    public void setEmployees(ArrayList<EmployedDTO> employees) {
         this.employees = employees;
         this.triggerEmployeesEvent();
     }
-
-    /**
-     * establece el valor del listado de campos de empleado consultado pir ID
-     * @param employed ArrayList con listado de campos de cliente consultado
-     *                 por ID
-     */
-    public void setEmployed(ArrayList<String> employed) {
-        this.employed = employed;
-        this.triggerEmployedEvent();
-    }
-
     /**
      * establece el valor del listado de gerentes consultado en la
      * tabla empleados

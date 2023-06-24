@@ -35,7 +35,7 @@ final public class StatementSQL {
      * @param employedStatus String con estado del empleado (Activo o Retirado)
      * @return ArrayList con listado de empleados y sus atributos
      */
-    public static ArrayList<ArrayList<String>> findAllEmployees(String employedStatus) {
+    public static ArrayList<EmployedDTO> findAllEmployees(String employedStatus) {
         startConnection();
         try {
             PreparedStatement preparedStatement = connection.prepareStatement("SELECT \n" +
@@ -60,17 +60,20 @@ final public class StatementSQL {
                     "WHERE empl_estado = ?;");
             preparedStatement.setString(1, employedStatus);
             ResultSet resultSet = preparedStatement.executeQuery();
-            ResultSetMetaData metaData = resultSet.getMetaData();
-            int numberColumns = metaData.getColumnCount();
 
-            ArrayList<ArrayList<String>> data = new ArrayList<>();
+            ArrayList<EmployedDTO> data = new ArrayList<>();
             while (resultSet.next()) {
-                int row = data.size();
-                data.add(new ArrayList<>());
-                for (int column = 0; column < numberColumns; column++) {
-                    String value = resultSet.getString(column + 1);
-                    data.get(row).add(value == null ? "" : value);
-                }
+                EmployedDTO employed = new EmployedDTO();
+                employed.setID(resultSet.getString(1));
+                employed.setName(resultSet.getString(2));
+                employed.setLastName(resultSet.getString(3));
+                employed.setSurname(resultSet.getString(4));
+                employed.setSecondSurname(resultSet.getString(5));
+                employed.setPosition(resultSet.getString(6));
+                employed.setDepartment(resultSet.getString(7));
+                employed.setCity(resultSet.getString(8));
+                employed.setAddress(resultSet.getString(9));
+                data.add(employed);
             }
             return data;
         } catch (SQLException e) {
@@ -86,7 +89,7 @@ final public class StatementSQL {
      * @param employedId ID de empleado a consultar
      * @return ArrayList con los atributos del empleado consultado
      */
-    public static ArrayList<String> findEmployed(int employedId) {
+    public static EmployedDTO findEmployed(int employedId) {
         startConnection();
         try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT \n" +
                 "  empl.empl_ID AS ID\n" +
@@ -120,19 +123,25 @@ final public class StatementSQL {
                 ";")) {
             preparedStatement.setInt(1, employedId);
             ResultSet resultSet = preparedStatement.executeQuery();
-            ResultSetMetaData metaData = resultSet.getMetaData();
-            int numberColumns = metaData.getColumnCount() + 1;
-            ArrayList<String> fieldsEmployed = new ArrayList<>();
-            if (resultSet.next()) {
-                for (int index = 1; index < numberColumns; index++) {
-                    if (index == 8) {
-                        fieldsEmployed.add(resultSet.getInt(index) + "");
-                    } else {
-                        fieldsEmployed.add(resultSet.getString(index));
-                    }
-                }
+
+            EmployedDTO employed = new EmployedDTO();
+            if (resultSet.next()){
+                employed.setID(resultSet.getString(1));
+                employed.setName(resultSet.getString(2));
+                employed.setLastName(resultSet.getString(3));
+                employed.setSurname(resultSet.getString(4));
+                employed.setSecondSurname(resultSet.getString(5));
+                employed.setBirthday(resultSet.getString(6));
+                employed.setEmail(resultSet.getString(7));
+                employed.setSalary(resultSet.getInt(8) + "");
+                employed.setCommission(resultSet.getString(9));
+                employed.setPosition(resultSet.getString(10));
+                employed.setDepartment(resultSet.getString(11));
+                employed.setManager(resultSet.getString(12));
+                employed.setCity(resultSet.getString(13));
+                employed.setAddress(resultSet.getString(14));
             }
-            return fieldsEmployed;
+            return employed;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         } finally {
@@ -142,9 +151,9 @@ final public class StatementSQL {
     /**
      * insertEmployed: método que permite realizar inserción de empleado en la base de datos, haciendo sub consultas
      * para obtener ID de cargo, ID de gerente, ID de departamento por nombre de dichos atributos.
-     * @param employed Objeto de la clase Employed con los atributos de empleado para ingresarlo en la base de datos
+     * @param employedDTO Objeto de la clase Employed con los atributos de empleado para ingresarlo en la base de datos
      */
-    public static void insertEmployed(Employed employed) {
+    public static void insertEmployed(EmployedDTO employedDTO) {
         startConnection();
         PreparedStatement preparedStatement;
         try {
@@ -156,8 +165,8 @@ final public class StatementSQL {
                     ", ?\n" +
                     ");");
 
-            preparedStatement.setString(1, employed.getCity());
-            preparedStatement.setString(2, employed.getAddress());
+            preparedStatement.setString(1, employedDTO.getCity());
+            preparedStatement.setString(2, employedDTO.getAddress());
             preparedStatement.executeUpdate();
 
 
@@ -186,18 +195,18 @@ final public class StatementSQL {
                     ", (SELECT dpto_ID FROM recursoshumanos.departamentos WHERE dpto_nombre = ?)\n" +
                     ");");
 
-            preparedStatement.setString(1, employed.getID());
-            preparedStatement.setString(2, employed.getName());
-            preparedStatement.setString(3, employed.getLastName());
-            preparedStatement.setString(4, employed.getSurname());
-            preparedStatement.setString(5, employed.getSecondSurname());
-            preparedStatement.setString(6, employed.getEmail());
-            preparedStatement.setString(7, employed.getBirthday());
-            preparedStatement.setString(8, employed.getSalary());
-            preparedStatement.setString(9, employed.getCommission());
-            preparedStatement.setString(10, employed.getPosition());
-            preparedStatement.setString(11, employed.getManager());
-            preparedStatement.setString(12, employed.getDepartment());
+            preparedStatement.setString(1, employedDTO.getID());
+            preparedStatement.setString(2, employedDTO.getName());
+            preparedStatement.setString(3, employedDTO.getLastName());
+            preparedStatement.setString(4, employedDTO.getSurname());
+            preparedStatement.setString(5, employedDTO.getSecondSurname());
+            preparedStatement.setString(6, employedDTO.getEmail());
+            preparedStatement.setString(7, employedDTO.getBirthday());
+            preparedStatement.setString(8, employedDTO.getSalary());
+            preparedStatement.setString(9, employedDTO.getCommission());
+            preparedStatement.setString(10, employedDTO.getPosition());
+            preparedStatement.setString(11, employedDTO.getManager());
+            preparedStatement.setString(12, employedDTO.getDepartment());
 
             preparedStatement.executeUpdate();
             commit();
@@ -214,9 +223,9 @@ final public class StatementSQL {
      * de empleados para obtener ID de cargo, ID de departamento y ID de gerente o gerencia a la que pertenece el empleado
      * se realiza update de los atributos de localización como dirección y ciudad correspondientes al ID de empleado en
      * la tabla localizaciones
-     * @param employed Objeto de la clase Employed con los atributos de empleado a ser actualizado en la base de datos
+     * @param employedDTO Objeto de la clase Employed con los atributos de empleado a ser actualizado en la base de datos
      */
-    public static void updateEmployed(Employed employed) {
+    public static void updateEmployed(EmployedDTO employedDTO) {
         startConnection();
         PreparedStatement preparedStatement;
         try {
@@ -226,7 +235,7 @@ final public class StatementSQL {
                     "WHERE e.empl_cargo_ID = (\n" +
                     "SELECT cargo_ID FROM recursoshumanos.cargos \n" +
                     "WHERE cargo_nombre = ?));");
-            preparedStatement.setString(1, employed.getManager());
+            preparedStatement.setString(1, employedDTO.getManager());
             preparedStatement.executeUpdate();
 
             preparedStatement = connection.prepareStatement("UPDATE localizaciones \n" +
@@ -235,9 +244,9 @@ final public class StatementSQL {
                     "WHERE localiz_ID = (\n" +
                     "SELECT empl_localiz_ID FROM empleados \n" +
                     "WHERE empl_ID = ?);");
-            preparedStatement.setString(1, employed.getCity());
-            preparedStatement.setString(2, employed.getAddress());
-            preparedStatement.setString(3, employed.getID());
+            preparedStatement.setString(1, employedDTO.getCity());
+            preparedStatement.setString(2, employedDTO.getAddress());
+            preparedStatement.setString(3, employedDTO.getID());
             preparedStatement.executeUpdate();
 
             preparedStatement = connection.prepareStatement("UPDATE recursoshumanos.empleados\n" +
@@ -254,17 +263,17 @@ final public class StatementSQL {
                     ", empl_dpto_ID = (SELECT dpto_ID FROM recursoshumanos.departamentos WHERE dpto_nombre = ?)\n" +
                     "WHERE (empl_ID = ?);");
 
-            preparedStatement.setString(1, employed.getName());
-            preparedStatement.setString(2, employed.getLastName());
-            preparedStatement.setString(3, employed.getSurname());
-            preparedStatement.setString(4, employed.getSecondSurname());
-            preparedStatement.setString(5, employed.getEmail());
-            preparedStatement.setString(6, employed.getBirthday());
-            preparedStatement.setString(7, employed.getSalary());
-            preparedStatement.setString(8, employed.getCommission());
-            preparedStatement.setString(9, employed.getPosition());
-            preparedStatement.setString(10, employed.getDepartment());
-            preparedStatement.setString(11, employed.getID());
+            preparedStatement.setString(1, employedDTO.getName());
+            preparedStatement.setString(2, employedDTO.getLastName());
+            preparedStatement.setString(3, employedDTO.getSurname());
+            preparedStatement.setString(4, employedDTO.getSecondSurname());
+            preparedStatement.setString(5, employedDTO.getEmail());
+            preparedStatement.setString(6, employedDTO.getBirthday());
+            preparedStatement.setString(7, employedDTO.getSalary());
+            preparedStatement.setString(8, employedDTO.getCommission());
+            preparedStatement.setString(9, employedDTO.getPosition());
+            preparedStatement.setString(10, employedDTO.getDepartment());
+            preparedStatement.setString(11, employedDTO.getID());
             preparedStatement.executeUpdate();
             commit();
         } catch (SQLException e) {

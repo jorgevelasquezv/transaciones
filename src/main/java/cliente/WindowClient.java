@@ -1,6 +1,6 @@
 package cliente;
 
-import connection.Employed;
+import connection.EmployedDTO;
 import connection.Message;
 import connection.TransactionType;
 
@@ -178,7 +178,7 @@ public class WindowClient extends JFrame {
     /**
      * idCountryPanelCountry: entrada de texto de tipo JTextField, permite el ingreso de ID de un país, ubicado en el JPanel de país
      */
-    private JFormattedTextField idCountryPanelCountry;
+    private JFormattedTextField idCountryPanelCountry                               ;
     /**
      * idCityPanelCity: entrada de texto de tipo JTextField, permite el ingreso de un ID de ciudad, ubicado en el JPanel de ciudad
      */
@@ -216,11 +216,11 @@ public class WindowClient extends JFrame {
     /**
      * listFieldsEmployeesActive: ArrayList con lista de empleados activos consultados en base de datos
      */
-    private ArrayList<ArrayList<String>> listFieldsEmployeesActive;
+    private ArrayList<EmployedDTO> listFieldsEmployeesActive;
     /**
      * listFieldsEmployeesRetirement: ArrayList con lista de empleados retirados consultados en base de datos
      */
-    private ArrayList<ArrayList<String>> listFieldsEmployeesRetirement;
+    private ArrayList<EmployedDTO> listFieldsEmployeesRetirement;
     /**
      * IP_ADDRESS: dirección ip del servidor que se establece por defecto cuando se crea una instancia de la clase
      * cliente sin asignar el valor
@@ -346,9 +346,7 @@ public class WindowClient extends JFrame {
         sendTransaction.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                ArrayList<String> fieldsEmployed = new ArrayList<>();
-
-                selectStatementToSend(fieldsEmployed);
+                selectStatementToSend();
 
                 client.sendStatement(new Message(message));
 
@@ -361,14 +359,12 @@ public class WindowClient extends JFrame {
     /**
      * Método para manipular el objeto message según el tipo de transacción que se le solicitara al socket server,
      * agregando los atributos necesarios para completar la transacción
-     * @param fieldsEmployed
      */
-    private void selectStatementToSend(ArrayList<String> fieldsEmployed) {
+    private void selectStatementToSend() {
         switch (message.getType()) {
             case INSERT_EMPLOYED:
             case UPDATE_EMPLOYED:
                 loadEmployed();
-                message.setFieldsEmployed(fieldsEmployed);
                 break;
             case DELETE_EMPLOYED:
                 message.setIdEmployed((Integer) idEmployedPanelEmployed.getValue());
@@ -435,24 +431,24 @@ public class WindowClient extends JFrame {
      *
      */
     private void loadEmployed() {
-        Employed employed = new Employed();
+        EmployedDTO employedDTO = new EmployedDTO();
 
-        employed.setID(String.valueOf(idEmployedPanelEmployed.getValue()));
-        employed.setName(firstNameEmployedPanelEmployed.getText());
-        employed.setLastName(secondNameEmployedPanelEmployed.getText());
-        employed.setSurname(surnameEmployedPanelEmployed.getText());
-        employed.setSecondSurname(secondSurnameEmployedPanelEmployed.getText());
-        employed.setBirthday(birthdateEmployedPanelEmployed.getText());
-        employed.setEmail(emailEmployedPanelEmployed.getText());
-        employed.setSalary(salaryEmployedPanelEmployed.getText());
-        employed.setCommission(commissionEmployedPanelEmployed.getText());
-        employed.setPosition((String) listPositionsPanelEmployed.getSelectedItem());
-        employed.setManager((String) managerEmployedPanelEmployed.getSelectedItem());
-        employed.setDepartment((String) employedDepartmentPanelEmployed.getSelectedItem());
-        employed.setCity((String) listCityPanelEmployed.getSelectedItem());
-        employed.setAddress(addressPanelEmployed.getText());
+        employedDTO.setID(String.valueOf(idEmployedPanelEmployed.getValue()));
+        employedDTO.setName(firstNameEmployedPanelEmployed.getText());
+        employedDTO.setLastName(secondNameEmployedPanelEmployed.getText());
+        employedDTO.setSurname(surnameEmployedPanelEmployed.getText());
+        employedDTO.setSecondSurname(secondSurnameEmployedPanelEmployed.getText());
+        employedDTO.setBirthday(birthdateEmployedPanelEmployed.getText());
+        employedDTO.setEmail(emailEmployedPanelEmployed.getText());
+        employedDTO.setSalary(salaryEmployedPanelEmployed.getText());
+        employedDTO.setCommission(commissionEmployedPanelEmployed.getText());
+        employedDTO.setPosition((String) listPositionsPanelEmployed.getSelectedItem());
+        employedDTO.setManager((String) managerEmployedPanelEmployed.getSelectedItem());
+        employedDTO.setDepartment((String) employedDepartmentPanelEmployed.getSelectedItem());
+        employedDTO.setCity((String) listCityPanelEmployed.getSelectedItem());
+        employedDTO.setAddress(addressPanelEmployed.getText());
 
-        message.setEmployed(employed);
+        message.setEmployed(employedDTO);
     }
     /**
      * Método para manejar el evento que se genera en el objeto de clase Client cuando se recibe un mensaje y asi
@@ -548,7 +544,7 @@ public class WindowClient extends JFrame {
         EventChangeClientListener loadEmployees = new EventChangeClientListener() {
             @Override
             void onEmployees(EventChangeClient event) {
-                ArrayList<ArrayList<String >> fieldEmployees = client.getEmployees();
+                ArrayList<EmployedDTO> fieldEmployees = client.getEmployees();
                 if (fieldEmployees != null && !fieldEmployees.isEmpty()) {
                     if (client.getEmployedStatus() != null && client.getEmployedStatus().equals("Activo")) {
                         listFieldsEmployeesActive = client.getEmployees();
@@ -570,22 +566,22 @@ public class WindowClient extends JFrame {
         EventChangeClientListener loadEmployed = new EventChangeClientListener() {
             @Override
             void onEmployed(EventChangeClient event) {
-                ArrayList<String> fieldsEmployed = client.getEmployed();
-                if (!fieldsEmployed.isEmpty()) {
-                    idEmployedPanelEmployed.setText(fieldsEmployed.get(0));
-                    firstNameEmployedPanelEmployed.setText(fieldsEmployed.get(1));
-                    secondNameEmployedPanelEmployed.setText(fieldsEmployed.get(2));
-                    surnameEmployedPanelEmployed.setText(fieldsEmployed.get(3));
-                    secondSurnameEmployedPanelEmployed.setText(fieldsEmployed.get(4));
-                    birthdateEmployedPanelEmployed.setText(fieldsEmployed.get(5));
-                    emailEmployedPanelEmployed.setText(fieldsEmployed.get(6));
-                    salaryEmployedPanelEmployed.setText(fieldsEmployed.get(7));
-                    commissionEmployedPanelEmployed.setText(fieldsEmployed.get(8));
-                    listPositionsPanelEmployed.setSelectedItem(fieldsEmployed.get(9));
-                    employedDepartmentPanelEmployed.setSelectedItem(fieldsEmployed.get(10));
-                    managerEmployedPanelEmployed.setSelectedItem(fieldsEmployed.get(11));
-                    listCityPanelEmployed.setSelectedItem(fieldsEmployed.get(12));
-                    addressPanelEmployed.setText(fieldsEmployed.get(13));
+                EmployedDTO employed = client.getEmployed();
+                if (employed != null){
+                    idEmployedPanelEmployed.setText(employed.getID());
+                    firstNameEmployedPanelEmployed.setText(employed.getName());
+                    secondNameEmployedPanelEmployed.setText(employed.getLastName());
+                    surnameEmployedPanelEmployed.setText(employed.getSurname());
+                    secondSurnameEmployedPanelEmployed.setText(employed.getSecondSurname());
+                    birthdateEmployedPanelEmployed.setText(employed.getBirthday());
+                    emailEmployedPanelEmployed.setText(employed.getEmail());
+                    salaryEmployedPanelEmployed.setText(employed.getSalary());
+                    commissionEmployedPanelEmployed.setText(employed.getCommission());
+                    listPositionsPanelEmployed.setSelectedItem(employed.getPosition());
+                    employedDepartmentPanelEmployed.setSelectedItem(employed.getDepartment());
+                    managerEmployedPanelEmployed.setSelectedItem(employed.getManager());
+                    listCityPanelEmployed.setSelectedItem(employed.getCity());
+                    addressPanelEmployed.setText(employed.getAddress());
                 }
             }
         };
@@ -705,17 +701,23 @@ public class WindowClient extends JFrame {
      * Método que permite cargar la JTable de empleados con los empleados encontrados en la base de datos según tipo de consulta Activo o Retirado
      * @param employees ArrayList de empleados encontrados en la base de datos según tipo de consulta Activo o Retirado
      */
-    private void createTable(ArrayList<ArrayList<String>> employees) {
+    private void createTable(ArrayList<EmployedDTO> employees) {
         String[] columnNames = {"ID", "Primer nombre", "Segundo Nombre", "Primer Apellido",
                 "Segundo Apellido", "Cargo", "Departamento", "Ciudad", "Dirección"};
         String[][] data;
         if (employees != null && !employees.isEmpty()) {
-            data = new String[employees.size()][employees.get(0).size()];
+            data = new String[employees.size()][9];
             for (int row = 0; row < employees.size(); row++) {
-                ArrayList<String> columns = employees.get(row);
-                for (int column = 0; column < columns.size(); column++) {
-                    data[row][column] = columns.get(column);
-                }
+                EmployedDTO employed = employees.get(row);
+                data[row][0] = employed.getID();
+                data[row][1] = employed.getName();
+                data[row][2] = employed.getLastName();
+                data[row][3] = employed.getSurname();
+                data[row][4] = employed.getSecondSurname();
+                data[row][5] = employed.getPosition();
+                data[row][6] = employed.getDepartment();
+                data[row][7] = employed.getCity();
+                data[row][8] = employed.getAddress();
             }
         }else {
             data = new String[1][columnNames.length];

@@ -61,9 +61,11 @@ public class Message implements Serializable {
     /**
      * employees: listado de empleados con sus atributos contenidos en la tabla empleados de la base de datos
      */
-    private ArrayList<ArrayList<String>> employees;
-
-    private Employed employed;
+    private ArrayList<EmployedDTO> employees;
+    /**
+     * employed: Objeto de la clase EmployedDTO para el manejo de los atributos del empleado contenidos en la tabla empleados de la base de datos
+     */
+    private EmployedDTO employed;
     /**
      * employed: listado de atributos de un empleado contenido en la tabla empleado de la base de datos
      */

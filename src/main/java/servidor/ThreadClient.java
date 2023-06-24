@@ -1,6 +1,7 @@
 package servidor;
 
 
+import connection.EmployedDTO;
 import connection.Message;
 import connection.StatementSQL;
 
@@ -131,9 +132,14 @@ public class ThreadClient extends Thread {
                 }
                 break;
             case UPDATE_EMPLOYED:
-                StatementSQL.updateEmployed(message.getEmployed());
-                message.setResponseServer("Se Actualizo Empleado Correctamente\n");
-                selectAll(message);
+                try {
+                    StatementSQL.updateEmployed(message.getEmployed());
+                    message.setResponseServer("Se Actualizo Empleado Correctamente\n");
+                    selectAll(message);
+                } catch (RuntimeException e) {
+                    message.setResponseServer("¡¡Error al actualizar empleado, verifique todos los campos!!");
+                    sendMessage(message);
+                }
                 break;
             case DELETE_EMPLOYED:
                 StatementSQL.deleteEmployed(employedId, retirementDate);
@@ -213,6 +219,7 @@ public class ThreadClient extends Thread {
                 break;
         }
     }
+
     /**
      * selectAll: método que permite realizar consulta de listado de empleados por estado (Activo o Retirado)
      * empleando la clase static StatementSQL
@@ -220,10 +227,11 @@ public class ThreadClient extends Thread {
      * @param message objeto con el tipo de sentencia a efectuar y los datos para llevarla a cabo
      */
     private void selectAll(Message message) {
-        ArrayList<ArrayList<String>> employeesFound = StatementSQL.findAllEmployees(message.getEmployedStatus());
+        ArrayList<EmployedDTO> employeesFound = StatementSQL.findAllEmployees(message.getEmployedStatus());
         message.setEmployees(employeesFound);
         sendMessage(message);
     }
+
     /**
      * selectOne: método que permite realizar consulta de un empleado por ID
      * empleando la clase static StatementSQL
@@ -231,13 +239,15 @@ public class ThreadClient extends Thread {
      * @param message objeto con el tipo de sentencia a efectuar y los datos para llevarla a cabo
      */
     private void selectOne(Message message) {
-        ArrayList<String> fieldsEmployed = StatementSQL.findEmployed(message.getIdEmployed());
-        message.setFieldsEmployed(fieldsEmployed);
-        if (fieldsEmployed.isEmpty()) {
+//        ArrayList<String> fieldsEmployed = StatementSQL.findEmployed(message.getIdEmployed());
+        EmployedDTO employed = StatementSQL.findEmployed(message.getIdEmployed());
+        message.setEmployed(employed);
+        if (employed == null) {
             message.setResponseServer("No existe empleado con el ID indicado");
         }
         sendMessage(message);
     }
+
     /**
      * sendMessage: método para envío de mensajes al cliente en el otro extremo del socket con la respuesta de la
      * transacción efectuada
@@ -251,6 +261,7 @@ public class ThreadClient extends Thread {
             System.out.println("Error enviando mensaje " + e);
         }
     }
+
     /**
      * endConnection: método que permite finalizar el loop y él cierra de conexión del socket del lado del
      * servidor
